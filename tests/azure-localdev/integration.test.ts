@@ -9,16 +9,17 @@
  * 2. Run `copilot` and authenticate
  */
 
-import { shouldEarlyTerminateForCompletedDeployment } from "../azure-deploy/utils";
 import {
+  useAgentRunner,
   shouldSkipIntegrationTests,
   getIntegrationSkipReason,
-  useAgentRunner,
-  AgentRunConfig,
 } from "../utils/agent-runner";
 import { withTestResult } from "../utils/evaluate";
+import { cloneRepo } from "../utils/git-clone";
 
 const SKILL_NAME = "azure-localdev";
+const FOLLOW_UP_PROMPT = ["Continue with recommended options until complete."];
+const BROWNFIELD_TEST_TIMEOUT_MS = 2700000;
 
 // Check if integration tests should be skipped at module level
 const skipTests = shouldSkipIntegrationTests();
@@ -30,47 +31,68 @@ if (skipTests && skipReason) {
 }
 
 const describeIntegration = skipTests ? describe.skip : describe;
-const deployTestTimeoutMs = 1800000;
 
 describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
   const agent = useAgentRunner();
 
-  // Idea - this will check if a workspace project exists by some sort of predefine id, if it exists, we do these chained tests
-  // If they don't exist, we skip
-  // If there is shared context we can use like a map,
-  // If there's not shared context, we can read/write from the report folder?
-  describe("from-azure-project-create", () => {
-    test("azure-project-create -- scrapbook-monorepo", async () => {
-      await withTestResult(async () => {
-        let workspacePath: string | undefined;
+  // Todo: describe(skill-invocation)
 
-        const agentMetadata = await agent.run({
-          setup: async (workspace: string) => {
-            // Find the workspace for the shared report folder
-            // Check for a centralized value indicating the temp folder of the chain project
-            // if exists, while loop and check plan markdown state from create-project for a certain timeout length
-            // (if we can check this via environment variable, that might be better)
-            // save path for the project plan?
-            workspacePath = workspace;
-          },
-          prompt: "Create a static whiteboard web app and deploy to Azure using my current subscription in eastus2 region.",
-          nonInteractive: true,
-          followUp: [],
-          preserveWorkspace: true,
+  const BROWNFIELD_PROJECTS_REPO = "https://github.com/MicroFish91/azure-skill-brownfield-projects.git";
 
-          // Todo: What is this??
-          shouldEarlyTerminate: shouldEarlyTerminateForCompletedDeployment
-        } satisfies AgentRunConfig);
+  describe("brownfield-scrapbook-node", () => {
+    // Does Copilot check for prerequisites?
+    // Does plan have the correct fields (Headers)?
+    // Do the correct files / folders get scaffolded?
+    // Are the configurations tested and do they pass?
+    // Do we instruct how to start the application?
+    // Do we offer to help verify the application after the user starts it?
 
-        console.log(agentMetadata);
-        console.log(workspacePath);
-        expect(agentMetadata).toBeTruthy();
+    test("passes --environment on azd init and sets subscription before provision", () => withTestResult(async () => {
+      let workspacePath: string | undefined;
+      const SCRAPBOOK_NODE_SPARSE_PATH = "localdev-scrapbook-node";
 
-        // Validate that the requisite files were generated including manualTestCollections/
-        // Validate that Copilot actually verified the configurations (ran tests to ensure launch.json configs)
-        // Validate Copilot marked the plan correctly
+      const agentMetadata = await agent.run({
+        setup: async (workspace: string) => {
+          workspacePath = workspace;
+
+          await cloneRepo({
+            repoUrl: BROWNFIELD_PROJECTS_REPO,
+            targetDir: workspace,
+            depth: 1,
+            sparseCheckoutPath: SCRAPBOOK_NODE_SPARSE_PATH,
+          });
+        },
+        prompt:
+          "/azure-localdev " +
+          "An overview of this project can be found under '.azure/local-dev.plan.md'",
+        nonInteractive: true,
+        followUp: FOLLOW_UP_PROMPT,
       });
 
-    }, deployTestTimeoutMs);
+      // if (agentMetadata.events[0].type === 'assistant.message') {
+      //   if (agentMetadata.events[0].data.content === 'some value') {
+      //   }
+      // }
+
+      let createdPlan: boolean = false;
+
+      for (const e of agentMetadata.events) {
+        // What we care about: File writes
+        if (e.type === "tool.execution_complete") {
+          // Created plan
+          if (/Created .*local-dev\.plan\.md/.test(e.data.result?.content ?? "")) {
+            createdPlan = true;
+          }
+
+          if ()
+        }
+      }
+
+      console.log(createdPlan)
+      console.log(workspacePath);
+      console.log(agentMetadata);
+      expect(agentMetadata).toBeTruthy();
+
+    }), BROWNFIELD_TEST_TIMEOUT_MS);
   });
 });
