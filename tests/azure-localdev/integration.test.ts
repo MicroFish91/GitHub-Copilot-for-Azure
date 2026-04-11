@@ -13,9 +13,11 @@ import {
   useAgentRunner,
   shouldSkipIntegrationTests,
   getIntegrationSkipReason,
+  type AgentMetadata,
 } from "../utils/agent-runner";
 import { withTestResult } from "../utils/evaluate";
 import { cloneRepo } from "../utils/git-clone";
+import { verifyExpectedFiles, verifyLaunchConfiguration } from "./utils";
 
 const SKILL_NAME = "azure-localdev";
 const FOLLOW_UP_PROMPT = ["Continue with recommended options until complete."];
@@ -42,19 +44,15 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
   describe("brownfield-scrapbook-node", () => {
     // Does Copilot check for prerequisites?
     // Does plan have the correct fields (Headers)?
-    // Do the correct files / folders get scaffolded?
-    // Are the configurations tested and do they pass?
     // Do we instruct how to start the application?
     // Do we offer to help verify the application after the user starts it?
 
-    test("passes --environment on azd init and sets subscription before provision", () => withTestResult(async () => {
-      let workspacePath: string | undefined;
-      const SCRAPBOOK_NODE_SPARSE_PATH = "localdev-scrapbook-node";
+    const SCRAPBOOK_NODE_SPARSE_PATH = "localdev-scrapbook-node";
+    let agentMetadata: AgentMetadata;
 
-      const agentMetadata = await agent.run({
+    beforeAll(async () => {
+      agentMetadata = await agent.run({
         setup: async (workspace: string) => {
-          workspacePath = workspace;
-
           await cloneRepo({
             repoUrl: BROWNFIELD_PROJECTS_REPO,
             targetDir: workspace,
@@ -68,31 +66,16 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
         nonInteractive: true,
         followUp: FOLLOW_UP_PROMPT,
       });
+    }, BROWNFIELD_TEST_TIMEOUT_MS);
 
-      // if (agentMetadata.events[0].type === 'assistant.message') {
-      //   if (agentMetadata.events[0].data.content === 'some value') {
-      //   }
-      // }
+    test("writes all expected output files", () => withTestResult(async () => {
+      expect(agentMetadata).toBeDefined();
+      verifyExpectedFiles(agentMetadata);
+    }));
 
-      let createdPlan: boolean = false;
-
-      for (const e of agentMetadata.events) {
-        // What we care about: File writes
-        if (e.type === "tool.execution_complete") {
-          // Created plan
-          if (/Created .*local-dev\.plan\.md/.test(e.data.result?.content ?? "")) {
-            createdPlan = true;
-          }
-
-          if ()
-        }
-      }
-
-      console.log(createdPlan)
-      console.log(workspacePath);
-      console.log(agentMetadata);
-      expect(agentMetadata).toBeTruthy();
-
-    }), BROWNFIELD_TEST_TIMEOUT_MS);
+    test("runs launch config checklist with 3 passing items", () => withTestResult(async () => {
+      expect(agentMetadata).toBeDefined();
+      verifyLaunchConfiguration(agentMetadata, 3);
+    }));
   });
 });
