@@ -20,6 +20,7 @@ import { cloneRepo } from "../utils/git-clone";
 import { verifyExpectedFiles, verifyLaunchConfiguration } from "./utils";
 
 const SKILL_NAME = "azure-localdev";
+const AZURE_SCAFFOLD_PLAN_PATH = '.azure/project-plan.md';
 const FOLLOW_UP_PROMPT = ["Continue with recommended options until complete."];
 const BROWNFIELD_TEST_TIMEOUT_MS = 2700000;
 
@@ -62,7 +63,8 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
         },
         prompt:
           "/azure-localdev " +
-          "An overview of this project can be found under '.azure/local-dev.plan.md'",
+          `The app can be found under ${SCRAPBOOK_NODE_SPARSE_PATH}.` +
+          `An overview of this project can be found under ${AZURE_SCAFFOLD_PLAN_PATH}.`,
         nonInteractive: true,
         followUp: FOLLOW_UP_PROMPT,
       });
