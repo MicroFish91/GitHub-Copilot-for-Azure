@@ -2,8 +2,8 @@ import { AgentMetadata } from "../utils/agent-runner";
 
 const EXPECTED_FILES = [
   {
-    name: ".azure/local-dev.plan.md",
-    pattern: /\.azure[/\\]local-dev\.plan\.md/i,
+    name: ".azure/local-development-plan.md",
+    pattern: /\.azure[/\\]local-development-plan\.md/i,
   },
   {
     name: ".vscode/launch.json",
@@ -18,8 +18,8 @@ const EXPECTED_FILES = [
     pattern: /docker-compose\.yml/i,
   },
   {
-    name: "manualTestCollections/",
-    pattern: /manualTestCollections[/\\]/i,
+    name: "api-test-collections/",
+    pattern: /api[-_]?test[-_]?collections[/\\]local[-_]?development[/\\].+[/\\]invoke\.sh/i,
   },
 ];
 

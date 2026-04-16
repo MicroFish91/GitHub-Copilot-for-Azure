@@ -1,6 +1,6 @@
 # Global Rules
 
-> **MANDATORY** — These rules apply to ALL actions performed by the azure-localdev skill. Violations are unacceptable.
+> **MANDATORY** — These rules apply to ALL actions performed by the azure-local-development skill. Violations are unacceptable.
 
 ## Rule 1: Destructive Actions Require User Confirmation
 
@@ -92,7 +92,21 @@ If the user wants to preserve data from unaffected emulators, wipe only the spec
 
 ---
 
-## Rule 4: Validate Before Generating
+## Rule 4: Adapt to Target Language Naming and Coding Conventions
+
+When generating artifacts, translate to the idiomatic naming and coding conventions for that language.
+
+### What to Translate
+
+| Artifact | Examples |
+|----------|----------|
+| **Generated file names** | TypeScript: `camelCase.ts` · Python: `snake_case.py` · C#: `PascalCase.cs` |
+| **Script / task names** | TypeScript: `emulators:start` (npm script) · Python: `emulators_start` (Makefile / pyproject) · C#: `emulators-start` (shell script / Makefile) |
+| **Variable / key names in generated code** | TypeScript: `camelCase` · Python: `snake_case` · C#: `PascalCase` (public) / `_camelCase` (private) |
+
+---
+
+## Rule 5: Validate Before Generating
 
 Before generating any artifact, verify:
 

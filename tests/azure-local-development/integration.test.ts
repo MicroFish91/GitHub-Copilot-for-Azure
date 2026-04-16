@@ -19,8 +19,7 @@ import { withTestResult } from "../utils/evaluate";
 import { cloneRepo } from "../utils/git-clone";
 import { verifyExpectedFiles, verifyLaunchConfiguration } from "./utils";
 
-const SKILL_NAME = "azure-localdev";
-const AZURE_SCAFFOLD_PLAN_PATH = '.azure/project-plan.md';
+const SKILL_NAME = "azure-local-development";
 const FOLLOW_UP_PROMPT = ["Continue with recommended options until complete."];
 const BROWNFIELD_TEST_TIMEOUT_MS = 2700000;
 
@@ -63,8 +62,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
         },
         prompt:
           "/azure-localdev " +
-          `The app can be found under ${SCRAPBOOK_NODE_SPARSE_PATH}.` +
-          `An overview of this project can be found under ${AZURE_SCAFFOLD_PLAN_PATH}.`,
+          `The app can be found under ${SCRAPBOOK_NODE_SPARSE_PATH}.`,
         nonInteractive: true,
         followUp: FOLLOW_UP_PROMPT,
       });
@@ -75,7 +73,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
       verifyExpectedFiles(agentMetadata);
     }));
 
-    test("runs launch config checklist with 3 passing items", () => withTestResult(async () => {
+    test("verifies launch config with 3 passing items", () => withTestResult(async () => {
       expect(agentMetadata).toBeDefined();
       verifyLaunchConfiguration(agentMetadata, 3);
     }));

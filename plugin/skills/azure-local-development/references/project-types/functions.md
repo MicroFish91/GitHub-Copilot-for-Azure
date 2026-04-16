@@ -106,9 +106,9 @@ Place emulator connection strings in `local.settings.json` under `"Values"`:
 
 ---
 
-## Manual Tests
+## API Test Collections
 
-See [manual-tests.md](../manual-tests.md) for all test script patterns. For this project type, generate tests for:
+See [api-test-collections.md](../api-test-collections.md) for all test script patterns. For this project type, generate tests for:
 
 - HTTP triggers → HTTP patterns with `baseUrl: http://localhost:7071/api`
 - Blob triggers → Storage § Blob trigger pattern

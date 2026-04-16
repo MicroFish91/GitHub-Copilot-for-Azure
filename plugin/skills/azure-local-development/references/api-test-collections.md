@@ -1,6 +1,6 @@
-# Manual Test Patterns
+# API Test Collection Patterns
 
-> Reference for generating `manualTestCollections/` scripts. Scripts are language-agnostic shell commands (`curl`, Azure CLI) that exercise the running app and its emulators.
+> Reference for generating `api-test-collections/local-development/` scripts. Scripts are language-agnostic shell commands (`curl`, Azure CLI) that exercise the running app and its emulators.
 >
 > **HTTP patterns** use `{baseUrl}` — the project type supplies the base URL (e.g., `http://localhost:7071/api` for Functions). All other patterns target the emulator directly and are reusable across project types.
 
@@ -151,7 +151,7 @@ curl -i -X POST "http://localhost:7071/admin/functions/{FunctionName}" \
 
 ## Generation Rules
 
-When generating `manualTestCollections/` during Phase 2:
+When generating `api-test-collections/local-development/` during Phase 2:
 
 1. Generate one subdirectory per trigger/endpoint found during inventory
 2. Name the directory after the trigger: `{trigger-type}-{function-or-endpoint-name}` (e.g., `http-GetOrder`, `blob-ProcessUpload`)
@@ -165,7 +165,7 @@ When generating `manualTestCollections/` during Phase 2:
 
 ## Plan Section Formatting Rules
 
-When writing the **Manual Tests** section of the plan, the heading format may vary by trigger type. In all cases, the subfolder names under `manualTestCollections/` (e.g., `http-register`, `http-createOrder`) should also be referenced in each section's markdown heading when they differ so users can easily see which routes map to each invokable script.
+When writing the **API Test Collections** section of the plan, the heading format may vary by trigger type. In all cases, the subfolder names under `api-test-collections/local-development/` (e.g., `http-register`, `http-createOrder`) should also be referenced in each section's markdown heading when they differ so users can easily see which routes map to each invokable script.
 
 ---
 
@@ -177,7 +177,7 @@ When writing the **Manual Tests** section of the plan, the heading format may va
 
 - **`{METHOD} {route}`** — HTTP verb and full route path (e.g., `GET /api/health`)
 - **`🔒`** — Include this emoji when the endpoint requires authentication (any auth scheme: Bearer JWT, API key, etc.). Omit entirely for anonymous/public endpoints.
-- **`` `{folder-name}` ``** — The exact folder name under `manualTestCollections/` (e.g., `` `http-health` ``)
+- **`` `{folder-name}` ``** — The exact folder name under `api-test-collections/local-development/` (e.g., `` `http-health` ``)
 
 **Examples:**
 
@@ -191,7 +191,7 @@ When writing the **Manual Tests** section of the plan, the heading format may va
 ### POST /api/orders 🔒 `http-createOrder`
 ```
 
-**Auth key** — add this once at the top of the Manual Tests section, just after the folder tree, when any 🔒 routes are present:
+**Auth key** — add this once at the top of the API Test Collections section, just after the folder tree, when any 🔒 routes are present:
 
 ```markdown
 > 🔒 = requires authentication (replace `<token>` with a JWT from the login endpoint before running)
@@ -207,7 +207,7 @@ When writing the **Manual Tests** section of the plan, the heading format may va
 
 - **`{TriggerType}`** — Human-readable trigger category: `Blob`, `Queue`, `Service Bus`, `Event Hubs`, `Table`, `Cosmos DB`, etc.
 - **`{function-or-resource-name}`** — The function name or the specific resource being targeted (container name, queue name, topic name, etc.)
-- **`` `{folder-name}` ``** — The exact folder name under `manualTestCollections/` (e.g., `` `blob-ProcessUpload` ``)
+- **`` `{folder-name}` ``** — The exact folder name under `api-test-collections/local-development/` (e.g., `` `blob-ProcessUpload` ``)
 
 **Examples:**
 

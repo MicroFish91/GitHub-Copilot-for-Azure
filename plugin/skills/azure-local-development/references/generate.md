@@ -6,7 +6,7 @@ Generate local development configuration files based on the approved plan.
 
 ## ⛔ CRITICAL: Plan Must Be Approved First
 
-**Do NOT generate any files until `.azure/local-dev.plan.md` exists and the user has approved it.** The plan is the source of truth — generate exactly what it specifies.
+**Do NOT generate any files until `.azure/local-development-plan.md` exists and the user has approved it.** The plan is the source of truth — generate exactly what it specifies.
 
 ---
 
@@ -14,7 +14,7 @@ Generate local development configuration files based on the approved plan.
 
 Before generating any artifact, verify:
 
-1. ✅ Plan exists at `.azure/local-dev.plan.md` with status `Approved` or `Executing`
+1. ✅ Plan exists at `.azure/local-development-plan.md` with status `Approved` or `Executing`
 2. ✅ Project type and runtime were correctly detected (from [classify.md](classify.md))
 3. ✅ Inventory results are documented in the plan (from [inventory.md](inventory.md))
 4. ✅ No existing file will be silently overwritten (see [Global Rules](global-rules.md))

@@ -1,6 +1,6 @@
 # Inventory Dependencies
 
-Scan the workspace to identify Azure service dependencies, emulator requirements, prerequisite tools, migration configuration, and manual test opportunities. This information feeds directly into the plan.
+Scan the workspace to identify Azure service dependencies, emulator requirements, prerequisite tools, migration configuration, and API test collection opportunities. This information feeds directly into the plan.
 
 > For multi-service workspaces: loop over each service context in `services[]` from `classify.md`. Run steps 1–4 per service; deduplicate emulators and prerequisites across services using the shared workspace context from [multi-service.md](multi-service.md).
 
@@ -103,11 +103,36 @@ Check which local-dev artifacts already exist in the workspace:
 | `docker-compose.yml` or `docker-compose.yaml` | Found / Not found |
 | `local.settings.json` (Functions) | Found / Not found |
 | `.env` / `.env.local` | Found / Not found |
-| `manualTestCollections/` | Found / Not found |
+| `api-test-collections/local-development/` | Found / Not found |
 | `migrations/` or ORM config | Found / Not found |
 | `scripts/db-migrate.sh` | Found / Not found |
 
 If existing config is found, note it in the plan — the generate phase must **merge**, not overwrite.
+
+### Stale Emulator Data Directories
+
+When setting up a **new** project (e.g. referencing a fresh `.azure/project-plan.md`), check for leftover emulator data directories from a previous run:
+
+| Directory | Emulator |
+|-----------|----------|
+| `.postgres/` | PostgreSQL |
+| `.azurite/` | Azurite (blob/queue/table) |
+| `.cosmos/` | Cosmos DB Emulator |
+| `.servicebus/` | Service Bus Emulator |
+
+If any exist in the workspace root, **inform the user immediately** and ask how to proceed:
+
+```
+ask_user(
+  question: "The following stale emulator data directories were found from a previous run:\n\n- .postgres/\n- .azurite/\n\nThese can cause container startup failures (e.g. PostgreSQL initdb errors). How would you like to handle this?",
+  choices: [
+    "Delete them and start fresh (recommended for new projects)",
+    "Keep them — I want to preserve the existing data"
+  ]
+)
+```
+
+If the user chooses to delete, remove the directories before proceeding. **Never delete data directories silently.**
 
 ---
 
@@ -125,11 +150,11 @@ Check for required tools on the developer's machine. Only check tools relevant t
 | .NET SDK | `dotnet --version` | .NET projects (⛔ launch config not yet in runtimes/dotnet.md) |
 | Python | `python3 --version` | Python projects (⛔ launch config not yet in runtimes/python.md) |
 | Java / Maven | `mvn --version` | Java projects (⛔ launch config not yet in runtimes/java.md) |
-| Azure CLI | `az --version` | Some manual test scripts |
+| Azure CLI | `az --version` | Some API test collection scripts |
 
 ---
 
-## Step 5: Discover Manual Test Opportunities
+## Step 5: Discover API Test Collection Opportunities
 
 Identify endpoints and triggers that would benefit from test scripts.
 

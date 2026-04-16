@@ -12,6 +12,14 @@ Run the detection tables below **in order** (first match wins per root). Classif
 
 ---
 
+## Step 0: Check for Project Plan (Optional Context)
+
+Before scanning for service roots, look for `.azure/project-plan.md` in the workspace root. This file is **not required** — skip this step silently if it does not exist.
+
+> Treat this project plan as **advisory context**, not as a substitute for detection. Always run the full detection tables below — but use the plan to resolve ambiguity, validate findings, and avoid misclassification.
+
+---
+
 ## Step 1: Detect Service Roots
 
 Scan every subdirectory for the following signals. Ignore: `node_modules/`, `.git/`, `dist/`, `build/`, `bin/`, `obj/`.
