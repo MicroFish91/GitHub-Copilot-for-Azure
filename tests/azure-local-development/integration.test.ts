@@ -1,5 +1,5 @@
 /**
- * Integration Tests for azure-localdev
+ * Integration Tests for azure-local-development
  * 
  * Tests skill behavior with a real Copilot agent session.
  * Runs prompts multiple times to measure skill invocation rate.
@@ -15,9 +15,10 @@ import {
   getIntegrationSkipReason,
   type AgentMetadata,
 } from "../utils/agent-runner";
-import { withTestResult } from "../utils/evaluate";
+import { expectFiles, withTestResult } from "../utils/evaluate";
 import { cloneRepo } from "../utils/git-clone";
-import { verifyExpectedFiles, verifyLaunchConfiguration } from "./utils";
+import { verifyLaunchConfiguration } from "./verifyLaunchConfiguration";
+import * as path from "node:path";
 
 const SKILL_NAME = "azure-local-development";
 const FOLLOW_UP_PROMPT = ["Continue with recommended options until complete."];
@@ -42,17 +43,21 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
   const BROWNFIELD_PROJECTS_REPO = "https://github.com/MicroFish91/azure-skill-brownfield-projects.git";
 
   describe("brownfield-scrapbook-node", () => {
-    // Does Copilot check for prerequisites?
     // Does plan have the correct fields (Headers)?
     // Do we instruct how to start the application?
     // Do we offer to help verify the application after the user starts it?
 
     const SCRAPBOOK_NODE_SPARSE_PATH = "localdev-scrapbook-node";
     let agentMetadata: AgentMetadata;
+    let workspacePath: string | undefined;
+    let projectPath: string | undefined;
 
     beforeAll(async () => {
       agentMetadata = await agent.run({
         setup: async (workspace: string) => {
+          workspacePath = workspace;
+          projectPath = path.join(workspacePath, SCRAPBOOK_NODE_SPARSE_PATH);
+
           await cloneRepo({
             repoUrl: BROWNFIELD_PROJECTS_REPO,
             targetDir: workspace,
@@ -61,21 +66,34 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
           });
         },
         prompt:
-          "/azure-localdev " +
+          `/${SKILL_NAME} ` +
           `The app can be found under ${SCRAPBOOK_NODE_SPARSE_PATH}.`,
         nonInteractive: true,
         followUp: FOLLOW_UP_PROMPT,
+        preserveWorkspace: true,
       });
     }, BROWNFIELD_TEST_TIMEOUT_MS);
 
-    test("writes all expected output files", () => withTestResult(async () => {
+    test("plan has expected sections defined", () => withTestResult(() => {
       expect(agentMetadata).toBeDefined();
-      verifyExpectedFiles(agentMetadata);
     }));
 
-    test("verifies launch config with 3 passing items", () => withTestResult(async () => {
+    test("writes all expected output files", () => withTestResult(() => {
       expect(agentMetadata).toBeDefined();
-      verifyLaunchConfiguration(agentMetadata, 3);
+      expect(projectPath).toBeDefined();
+      expectFiles(projectPath!, [
+        /\.azure[/\\]local-development-plan\.md$/,
+        /\.vscode[/\\]launch\.json$/,
+        /\.vscode[/\\]tasks\.json$/,
+        /docker-compose\.ya?ml$/,
+        /api[-_]?test[-_]?collections[/\\]local[-_]?development[/\\].+[/\\]invoke\.sh$/,
+      ], []);
+    }));
+
+    test("verifies launch config with 3 passing items", () => withTestResult(() => {
+      expect(agentMetadata).toBeDefined();
+      expect(projectPath).toBeDefined();
+      verifyLaunchConfiguration(projectPath!, 3);
     }));
   });
 });

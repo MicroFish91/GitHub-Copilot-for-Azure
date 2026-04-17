@@ -1,0 +1,27 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
+
+export function verifyLaunchConfiguration(projectPath: string, expectedConfigCount: number): void {
+  const localDevelopmentPlan = getLocalDevelopmentPlan(projectPath);
+  expect(localDevelopmentPlan).toBeDefined();
+
+  const launchConfigChecklist = getLaunchConfigurationChecklist(fs.readFileSync(localDevelopmentPlan!, "utf-8"));
+  expect(launchConfigChecklist).toBeDefined();
+
+  const passCount = (launchConfigChecklist!.match(/^✅/gm) ?? []).length;
+  expect(passCount).toBe(expectedConfigCount);
+
+  const failCount = (launchConfigChecklist!.match(/^❌/gm) ?? []).length;
+  expect(failCount).toBe(0);
+}
+
+function getLaunchConfigurationChecklist(localDevelopmentContent: string): string {
+  const lines: string[] = localDevelopmentContent.split("\n");
+  const checklistStartIdx = lines.findIndex(l => l.includes("## Launch Configuration Checklist"));
+  return checklistStartIdx !== -1 ? lines.slice(checklistStartIdx).join("\n") : "";
+}
+
+function getLocalDevelopmentPlan(projectPath: string): string | undefined {
+  const localDevelopmentPlan = path.join(projectPath, ".azure", "local-development-plan.md");
+  return fs.existsSync(localDevelopmentPlan) ? localDevelopmentPlan : undefined;
+}
