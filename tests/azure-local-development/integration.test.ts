@@ -41,9 +41,8 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
   // Todo: describe(skill-invocation)
 
   const BROWNFIELD_PROJECTS_REPO = "https://github.com/MicroFish91/azure-skill-brownfield-projects.git";
-
   describe("brownfield-scrapbook-node", () => {
-    const SCRAPBOOK_NODE_SPARSE_PATH = "localdev-scrapbook-node";
+    const SCRAPBOOK_NODE_SPARSE_PATH = "scaffold-scrapbook-node";
     let agentMetadata: AgentMetadata;
     let projectPath: string | undefined;
     let workspacePath: string | undefined;
@@ -76,7 +75,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
       expectLocalDevelopmentPlanHeaders(projectPath!, [
         "## Table of Contents",
         "## Prerequisites",
-        "## Architecture Diagram",
+        "## Architecture",
         "## Emulators",
         "## Migrations",
         "## Convenience Scripts",

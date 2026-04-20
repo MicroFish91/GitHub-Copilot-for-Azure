@@ -4,7 +4,7 @@ description: "Scan a workspace and generate an opinionated local-development pla
 license: MIT
 metadata:
   author: Microsoft
-  version: "0.1.0"
+  version: "0.1.3"
 ---
 
 # Azure Local Development
@@ -99,13 +99,13 @@ For each **non-compound** launch configuration in `.vscode/launch.json`:
 1. Read the config's `preLaunchTask` value
 2. Trace the full `dependsOn` chain in `tasks.json` to find every leaf command and its `cwd`
 3. Run each leaf command in the terminal in order (use background process for long-running ones)
-4. Confirm the ready signal in stdout:
-   - Azure Functions host → `"Host lock lease acquired"` or `"Functions host started"`
-   - Vite / webpack → `"ready in"` or `"Local:"`
-   - Node HTTP server → `"listening on"` or `"Server running"`
+4. Confirm the ready signal in stdout, for example:
+  - Azure Functions host → `"Host lock lease acquired"` or `"Functions host started"`
+  - Vite / webpack → `"ready in"` or `"Local:"`
+  - Node HTTP server → `"listening on"` or `"Server running"`
 5. After the ready signal, confirm with `curl`:
-   - For `node`-type configs (Functions): `curl -s -o /dev/null -w "%{http_code}" http://localhost:<debugPort — use the function host port, usually 7071>/api/health` → expect `200`
-   - For `chrome`-type configs (browser dev servers): `curl -s -o /dev/null -w "%{http_code}" http://localhost:<url port from config>` → expect `200` or `301`
+  - For `node`-type configs (Functions): `curl -s -o /dev/null -w "%{http_code}" http://localhost:<debugPort — use the function host port, usually 7071>/api/health` → expect `200`
+  - For `chrome`-type configs (browser dev servers): `curl -s -o /dev/null -w "%{http_code}" http://localhost:<url port from config>` → expect `200` or `301`
    - **Note:** For `chrome`-type configs you are validating that the dev server started and is reachable — you do NOT need to launch a browser. The `preLaunchTask` is a shell task (`npm run dev` / Vite) that runs in the terminal like any other.
 6. Kill background processes, then move to the next config
 7. For compound configs: skip running them; mark ✅ if all named member configs passed, ❌ if any failed
@@ -138,12 +138,22 @@ One line per config (non-compound and compound). ✅ requires the ready signal o
 
 ---
 
-## Next
+## Next Steps — MANDATORY CLOSING MESSAGE
 
-> After the local dev environment is set up, the developer should be able to:
+After Phase 3 validation, end your response with the following:
+
+| # | Item | What to say |
+|---|------|-------------|
+| 1 | **F5 start instruction** | Tell the user to press **F5** in VS Code and select the compound launch configuration (e.g., "Start All") to start the full application with debugging. |
+| 2 | **API test offer** | Offer to run the API test collection scripts on the user's behalf. Caveat: the user must start the app with F5 first, because the scripts target `localhost` endpoints that require the app to be running. |
+| 3 | **Cloud deployment** | Mention that for subsequent Azure cloud deployment, hand off to: `azure-prepare` → `azure-validate` → `azure-deploy`. |
+
+Example closing message (use this structure):
+
+> ## Next Steps
 >
-> 1. Press **F5** in VS Code — the task chain automatically starts emulators, builds, and launches the host
-> 2. Hit a local endpoint or trigger a function
+> Press **F5** in VS Code and select **Start All** to launch the full application with debugging.
 >
-> For subsequent Azure cloud deployment, hand off to:
-> `azure-prepare` → `azure-validate` → `azure-deploy`
+> Once the app is running, you can ask me to run the API test collection scripts to verify your endpoints.
+>
+> When you're ready to deploy to Azure, I can help with that too.

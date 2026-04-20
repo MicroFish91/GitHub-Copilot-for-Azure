@@ -27,7 +27,7 @@ You **MUST** create this plan file BEFORE generating any configuration files. Pr
 | Step | Summary |
 |------|---------|
 | [Prerequisites](#prerequisites) | Tools that must be installed on the host before running locally. |
-| [Architecture](#architecture) | Mermaid diagram showing high level app-to-emulator connections. |
+| [Architecture Diagram](#architecture-diagram) | Mermaid diagram showing high level app-to-emulator connections. |
 | [Emulators](#emulators) | Azure service dependencies running as Docker containers via docker-compose. |
 | [Migrations](#migrations) | *(if applicable)* Database schema applied automatically on `docker compose up`. |
 | [Convenience Scripts](#convenience-scripts) | Convenience scripts for starting / stopping / cleaning emulators and running migrations. |
