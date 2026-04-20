@@ -230,6 +230,8 @@ api-test-collections/
       {optional-sample-data-files}
 ```
 
+> 💡 Once the app is running via **F5**, you can ask the agent to execute these test scripts to verify your endpoints and triggers against `localhost`.
+
 ### {METHOD} {route}
 
 <details>
@@ -246,13 +248,12 @@ curl -i {url}
 <!-- When a test has sample data files, list them in the <summary> alongside invoke.sh, e.g.: -->
 <!-- <summary>invoke.sh, sample.json</summary> -->
 <!-- And add a note inside the details block describing the sample data file. -->
-````
 
 ---
 
 ## Launch Configuration Checklist
 
-> **Filled in during Phase 3 — replace each ❌ with a real terminal run result.**
+> **Managed in Phase 3 by the Agent — replace each ❌ with a real terminal run result.**
 
 ```
 Launch Configuration Checklist:
@@ -260,6 +261,8 @@ Launch Configuration Checklist:
 ```
 
 <!-- After running each config's preLaunchTask commands in the terminal, replace ❌ with ✅ and the ready signal observed (e.g. "Host lock lease acquired", "ready in 312ms"). One line per config. Do NOT mark ✅ without having actually run the commands. -->
+
+````
 
 ---
 
@@ -273,7 +276,8 @@ Launch Configuration Checklist:
 6. **Omit Migrations if not applicable** — Only include the Migrations section when database migrations are detected
 7. **Present to user** — Show the plan and ask for approval
 8. **Track status** — Update the **Status** field at the top as you progress. Only set status to `Implemented` after the Launch Configuration Checklist has been filled in with real validation results.
-9. **Set Created timestamp** — When first writing the plan, set **Created** to the current UTC datetime in ISO 8601 format (e.g. `2026-03-27T20:08:48Z`). This field must never be changed after initial creation.
-10. **Update Last Updated timestamp** — Set **Last Updated** to the current UTC datetime in ISO 8601 format every time the Status field changes (Planning → Approved → Executing → Implemented) or any other edit is made to the plan.
+9. **Fill in the Validation section** — During Phase 3, replace each ❌ stub in the Launch Configuration Checklist with a ✅ or ❌ and the observed result. Do NOT set status to `Implemented` until every stub has been replaced.
+10. **Set Created timestamp** — When first writing the plan, set **Created** to the current UTC datetime in ISO 8601 format (e.g. `2026-03-27T20:08:48Z`). This field must never be changed after initial creation.
+11. **Update Last Updated timestamp** — Set **Last Updated** to the current UTC datetime in ISO 8601 format every time the Status field changes (Planning → Approved → Executing → Implemented) or any other edit is made to the plan.
 
 The plan is the **single source of truth** for the execution phase.

@@ -4,7 +4,7 @@ description: "Scan a workspace and generate an opinionated local-development pla
 license: MIT
 metadata:
   author: Microsoft
-  version: "0.1.3"
+  version: "0.1.4"
 ---
 
 # Azure Local Development
@@ -130,7 +130,7 @@ One line per config (non-compound and compound). ✅ requires the ready signal o
 |----------|----------|
 | **Plan** | `.azure/local-development-plan.md` |
 | Architecture Diagram | `.azure/local-development-plan.md` § Architecture |
-| Docker Compose | `docker-compose.yml` (workspace root) |
+| Docker Compose | `docker-compose.yml` |
 | Launch Config | `.vscode/launch.json` |
 | Task Config | `.vscode/tasks.json` |
 | Convenience Scripts | Runtime-specific script runner (see [runtimes/{rt}.md](references/runtimes/)) |
