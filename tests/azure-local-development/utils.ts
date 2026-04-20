@@ -38,7 +38,7 @@ function getLaunchConfigurationChecklist(localDevelopmentContent: string): strin
   return checklistStartIdx !== -1 ? lines.slice(checklistStartIdx).join("\n") : "";
 }
 
-export function getLocalDevelopmentPlan(projectPath: string): string | undefined {
+function getLocalDevelopmentPlan(projectPath: string): string | undefined {
   const localDevelopmentPlan = path.join(projectPath, ".azure", "local-development-plan.md");
   return fs.existsSync(localDevelopmentPlan) ? localDevelopmentPlan : undefined;
 }

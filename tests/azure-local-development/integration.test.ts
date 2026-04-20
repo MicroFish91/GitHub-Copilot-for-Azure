@@ -17,7 +17,7 @@ import {
 } from "../utils/agent-runner";
 import { expectFiles, withTestResult } from "../utils/evaluate";
 import { cloneRepo } from "../utils/git-clone";
-import { getLocalDevelopmentPlan, expectLaunchConfigurations, expectLocalDevelopmentPlanHeaders } from "./utils";
+import { expectLaunchConfigurations, expectLocalDevelopmentPlanHeaders } from "./utils";
 import * as path from "node:path";
 
 const SKILL_NAME = "azure-local-development";
@@ -43,13 +43,10 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
   const BROWNFIELD_PROJECTS_REPO = "https://github.com/MicroFish91/azure-skill-brownfield-projects.git";
 
   describe("brownfield-scrapbook-node", () => {
-    // Do we instruct how to start the application?
-    // Do we offer to help verify the application after the user starts it?
-
     const SCRAPBOOK_NODE_SPARSE_PATH = "localdev-scrapbook-node";
     let agentMetadata: AgentMetadata;
-    let workspacePath: string | undefined;
     let projectPath: string | undefined;
+    let workspacePath: string | undefined;
 
     beforeAll(async () => {
       agentMetadata = await agent.run({
@@ -76,7 +73,6 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
     test("writes plan with expected sections", () => withTestResult(() => {
       expect(agentMetadata).toBeDefined();
       expect(projectPath).toBeDefined();
-
       expectLocalDevelopmentPlanHeaders(projectPath!, [
         "## Table of Contents",
         "## Prerequisites",
@@ -93,7 +89,6 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
     test("writes all expected output files", () => withTestResult(() => {
       expect(agentMetadata).toBeDefined();
       expect(projectPath).toBeDefined();
-
       expectFiles(projectPath!, [
         /\.azure[/\\]local-development-plan\.md$/,
         /\.vscode[/\\]launch\.json$/,
@@ -103,7 +98,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
       ], []);
     }));
 
-    test("verifies launch config with 3 passing items", () => withTestResult(() => {
+    test("verify launch config with 3 passing items", () => withTestResult(() => {
       expect(agentMetadata).toBeDefined();
       expect(projectPath).toBeDefined();
       expectLaunchConfigurations(projectPath!, 3);
