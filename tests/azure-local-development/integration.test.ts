@@ -40,7 +40,9 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
 
   // Todo: describe(skill-invocation)
 
+  // ----- Brownfield Tests ------
   const BROWNFIELD_PROJECTS_REPO = "https://github.com/MicroFish91/azure-skill-brownfield-projects.git";
+
   describe("brownfield-scrapbook-node", () => {
     const SCRAPBOOK_NODE_SPARSE_PATH = "scaffold-scrapbook-node";
     let agentMetadata: AgentMetadata;

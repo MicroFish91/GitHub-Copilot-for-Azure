@@ -65,7 +65,7 @@ Scan the full workspace for service roots. Always produce a list of `services[]`
 
 ---
 
-## Phase 1: Planning (BLOCKING — Complete Before Any Execution)
+## Phase 1: Plan (BLOCKING — Complete Before Any Execution)
 
 Create `.azure/local-development-plan.md` by completing these steps. Do NOT generate any artifacts until the plan is approved.
 
@@ -144,9 +144,9 @@ After Phase 3 validation, end your response with the following:
 
 | # | Item | What to say |
 |---|------|-------------|
-| 1 | **F5 start instruction** | Tell the user to press **F5** in VS Code and select the compound launch configuration (e.g., "Start All") to start the full application with debugging. |
-| 2 | **API test offer** | Offer to run the API test collection scripts on the user's behalf. Caveat: the user must start the app with F5 first, because the scripts target `localhost` endpoints that require the app to be running. |
-| 3 | **Cloud deployment** | Mention that for subsequent Azure cloud deployment, hand off to: `azure-prepare` → `azure-validate` → `azure-deploy`. |
+| 1 | **Start Debugging** | Tell the user to press **F5** in VS Code and select the compound launch configuration (e.g., "Start All") to start the full application with debugging. |
+| 2 | **Offer API Testing** | Offer to run the API test collection scripts on the user's behalf. Caveat: the user must start the app with F5 first, because the scripts target `localhost` endpoints that require the app to be running. |
+| 3 | **Azure Cloud Deployment** | Mention that for subsequent Azure cloud deployment, hand off to: `azure-prepare` → `azure-validate` → `azure-deploy`. |
 
 Example closing message (use this structure):
 
