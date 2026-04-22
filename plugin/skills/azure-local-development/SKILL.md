@@ -1,10 +1,10 @@
 ---
 name: azure-local-development
-description: "Scan a workspace and generate an opinionated local-development plan so the developer only has to press F5 to debug. Covers prerequisites, Azure emulators via docker-compose (Azurite, Cosmos DB Emulator, Service Bus Emulator, Event Hubs Emulator...), VS Code launch/task configuration, and API test collections. Defaults to official Azure-provided emulators for all Azure service dependencies. WHEN: \"local dev setup\", \"debug locally\", \"F5 debugging\", \"set up emulators\", \"local development plan\", \"docker compose for local\", \"launch.json\", \"tasks.json\", \"local dev\", \"local development\", \"run locally\", \"debug my app\", \"set up local environment\", \"azurite\", \"cosmos emulator\", \"service bus emulator\"."
+description: "Scan a workspace and generate an opinionated local-development plan so the developer can debug with one click. Guides installation of prerequisites, Azure emulator setup via docker-compose (Azurite, Cosmos DB Emulator, Service Bus Emulator, Event Hubs Emulator...), IDE-specific debug/launch configuration, and API test collections for verification. WHEN: \"local dev setup\", \"debug locally\", \"F5 debugging\", \"set up emulators\", \"local development plan\", \"docker compose for local\", \"launch.json\", \"tasks.json\", \"local dev\", \"local development\", \"run locally\", \"debug my app\", \"set up local environment\", \"azurite\", \"cosmos emulator\", \"service bus emulator\"."
 license: MIT
 metadata:
   author: Microsoft
-  version: "0.1.4"
+  version: "0.2.0"
 ---
 
 # Azure Local Development
@@ -20,10 +20,10 @@ metadata:
 Activate this skill when the user wants to:
 
 - Set up their workspace for local development / debugging
-- Configure project for local development / debugging in VS Code
+- Configure project for local development / debugging in their IDE
 - Add or configure Azure emulators locally (Azurite, Cosmos DB Emulator, Service Bus Emulator, Event Hubs Emulator)
 - Generate `docker-compose.yml` for Azure emulator services
-- Create or update `.vscode/launch.json` and `.vscode/tasks.json`
+- Create or update IDE debug launch configurations
 - Generate API test collection scripts for local triggers & endpoints
 - Set up automatic database migrations for local development
 - Prepare a local development plan for their project
@@ -32,7 +32,7 @@ Activate this skill when the user wants to:
 
 1. **Update plan progressively** — Mark steps complete as you go; update **Last Updated** timestamp on every status change
 2. ❌ **Destructive actions require `ask_user`** — [Global Rules](references/global-rules.md)
-3. **Preserve existing config** — Never silently overwrite `.vscode/launch.json`, `tasks.json`, or `docker-compose.yml`. Merge or ask first.
+3. **Preserve existing config** — Never silently overwrite project configuration files or `docker-compose.yml`. Merge or ask first.
 4. **Scope — local development only** — This skill configures the developer's machine and existing workspace project for local debugging. Cloud deployment is handled by **azure-prepare** → **azure-validate** → **azure-deploy**.
 
 ---
@@ -74,7 +74,7 @@ Create `.azure/local-development-plan.md` by completing these steps. Do NOT gene
 | 1 | **Inventory Dependencies** — For each service: scan bindings/SDKs, identify emulators needed, check existing config | [inventory.md](references/inventory.md), [project-types/{type}.md](references/project-types/) |
 | 2 | **Detect Prerequisites** — Check which required tools are installed and which are missing | [inventory.md](references/inventory.md) |
 | 3 | **Detect Migrations** — Scan for database migration files or ORM config; if found, plan a docker-compose migration service | [migrations.md](references/migrations.md) |
-| 4 | **Determine Launch Configuration** — Build the `launch.json` / `tasks.json` task chain per service | [runtimes/{rt}.md](references/runtimes/), [project-types/{type}.md](references/project-types/) |
+| 4 | **Determine Launch Configuration** — Build the debug/launch configuration per service using the detected IDE | [runtimes/{rt}.md](references/runtimes/), [project-types/{type}.md](references/project-types/), [ide/{ide}.md](references/ide/) |
 | 5 | **Plan API Test Collection** — List HTTP endpoints and trigger-based functions that need test scripts | [inventory.md](references/inventory.md), [api-test-collections.md](references/api-test-collections.md) |
 | 6 | **Write Plan** — Generate `.azure/local-development-plan.md` using the template. Prerequisites section must list installed vs. missing with install links. Embed the architecture diagram from step 6. Set **Created** and **Last Updated** to the current UTC datetime (ISO 8601). | [plan-template.md](references/plan-template.md) |
 | 7 | **Present Plan** — Show plan to user and ask for approval. If prerequisites are missing, highlight them and ask the user to install before proceeding. Once approved, update plan status to `Approved` and **Last Updated** timestamp. | `.azure/local-development-plan.md` |
@@ -94,33 +94,20 @@ Create `.azure/local-development-plan.md` by completing these steps. Do NOT gene
 
 ## Phase 3: Validate (MANDATORY — Do Not Skip)
 
-For each **non-compound** launch configuration in `.vscode/launch.json`:
+> ⛔ **STOP.** You MUST complete every validation step below before proceeding. Do NOT mark the task as complete, do NOT set status to `Implemented`, and do NOT deliver a closing message until validation is finished and the checklist is updated with real results.
 
-1. Read the config's `preLaunchTask` value
-2. Trace the full `dependsOn` chain in `tasks.json` to find every leaf command and its `cwd`
-3. Run each leaf command in the terminal in order (use background process for long-running ones)
-4. Confirm the ready signal in stdout, for example:
-  - Azure Functions host → `"Host lock lease acquired"` or `"Functions host started"`
-  - Vite / webpack → `"ready in"` or `"Local:"`
-  - Node HTTP server → `"listening on"` or `"Server running"`
-5. After the ready signal, confirm with `curl`:
-  - For `node`-type configs (Functions): `curl -s -o /dev/null -w "%{http_code}" http://localhost:<debugPort — use the function host port, usually 7071>/api/health` → expect `200`
-  - For `chrome`-type configs (browser dev servers): `curl -s -o /dev/null -w "%{http_code}" http://localhost:<url port from config>` → expect `200` or `301`
-   - **Note:** For `chrome`-type configs you are validating that the dev server started and is reachable — you do NOT need to launch a browser. The `preLaunchTask` is a shell task (`npm run dev` / Vite) that runs in the terminal like any other.
-6. Kill background processes, then move to the next config
-7. For compound configs: skip running them; mark ✅ if all named member configs passed, ❌ if any failed
+Validate that the generated IDE configuration works. The validation steps are IDE-specific — refer to the active IDE adapter:
 
-**After validating every config, edit the `## Launch Configuration Checklist` section in `.azure/local-development-plan.md`:**
+| IDE | Reference |
+|-----|-----------|
+| VS Code | [ide/vscode.md § Validation](references/ide/vscode.md) |
 
-```
-Launch Configuration Checklist:
-✅ <config-name> — <ready signal + curl result>
-✅ <config-name> — <ready signal + curl result>
-```
+You MUST:
+1. Follow **every** validation step in the IDE reference — execute them, do not skip or assume they pass
+2. Update the `## Debug Configuration Checklist` section in `.azure/local-development-plan.md` with the real ✅ or ❌ result for **each** configuration
+3. Only after **every** checklist stub has been replaced with a real result may you mark status as `Implemented` and proceed
 
-One line per config (non-compound and compound). ✅ requires the ready signal observed AND curl confirmed.
-
-> **⛔ Do NOT set status to `Implemented` until every stub in the Launch Configuration Checklist has been replaced with a real ✅ or ❌ result.**
+> ⛔ Do NOT set status to `Implemented` until every stub in the Debug Configuration Checklist has been replaced with a real ✅ or ❌ result. A checklist with any remaining stubs is incomplete — go back and validate.
 
 ---
 
@@ -131,8 +118,8 @@ One line per config (non-compound and compound). ✅ requires the ready signal o
 | **Plan** | `.azure/local-development-plan.md` |
 | Architecture Diagram | `.azure/local-development-plan.md` § Architecture |
 | Docker Compose | `docker-compose.yml` |
-| Launch Config | `.vscode/launch.json` |
-| Task Config | `.vscode/tasks.json` |
+| IDE Debug Config | IDE-specific — see [ide/{ide}.md](references/ide/) |
+| IDE Build Config | IDE-specific — see [ide/{ide}.md](references/ide/) |
 | Convenience Scripts | Runtime-specific script runner (see [runtimes/{rt}.md](references/runtimes/)) |
 | API Test Collections | `api-test-collections/local-development/<test-name>/invoke.sh` |
 
@@ -144,15 +131,15 @@ After Phase 3 validation, end your response with the following:
 
 | # | Item | What to say |
 |---|------|-------------|
-| 1 | **Start Debugging** | Tell the user to press **F5** in VS Code and select the compound launch configuration (e.g., "Start All") to start the full application with debugging. |
-| 2 | **Offer API Testing** | Offer to run the API test collection scripts on the user's behalf. Caveat: the user must start the app with F5 first, because the scripts target `localhost` endpoints that require the app to be running. |
+| 1 | **Start Debugging** | Tell the user to start debugging using their IDE's debug/run action. Refer to the IDE-specific quick start in [ide/{ide}.md](references/ide/). For VS Code: "Press **F5** and select the compound launch configuration (e.g., 'Start All')." |
+| 2 | **Offer API Testing** | Offer to run the API test collection scripts on the user's behalf. Caveat: the user must start the app first, because the scripts target `localhost` endpoints that require the app to be running. |
 | 3 | **Azure Cloud Deployment** | Mention that for subsequent Azure cloud deployment, hand off to: `azure-prepare` → `azure-validate` → `azure-deploy`. |
 
-Example closing message (use this structure):
+Example closing message (adapt based on detected IDE):
 
 > ## Next Steps
 >
-> Press **F5** in VS Code and select **Start All** to launch the full application with debugging.
+> Start the application using your IDE's debug/run action. For VS Code, press **F5** and select **Start All**.
 >
 > Once the app is running, you can ask me to run the API test collection scripts to verify your endpoints.
 >

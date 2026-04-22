@@ -98,8 +98,8 @@ Check which local-dev artifacts already exist in the workspace:
 
 | File | Status Values |
 |------|--------------|
-| `.vscode/launch.json` | Found / Not found |
-| `.vscode/tasks.json` | Found / Not found |
+| IDE debug/launch config (see [ide/{ide}.md](ide/)) | Found / Not found |
+| IDE task/build config (see [ide/{ide}.md](ide/)) | Found / Not found |
 | `docker-compose.yml` or `docker-compose.yaml` | Found / Not found |
 | `local.settings.json` (Functions) | Found / Not found |
 | `.env` / `.env.local` | Found / Not found |
@@ -200,7 +200,7 @@ Consolidate findings into a scan summary for the plan:
 
 | File | Status |
 |------|--------|
-| .vscode/launch.json | Not found |
+| IDE debug/launch config | Not found |
 | docker-compose.yml | Not found |
 | local.settings.json | Found |
 

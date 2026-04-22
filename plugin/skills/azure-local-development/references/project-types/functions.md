@@ -17,12 +17,13 @@ Reference guide for local development setup of Azure Functions projects.
 
 | Runtime | Status | Reference |
 |---------|--------|-----------|
-| node-ts | ✅ Full | [runtimes/node-ts.md](../runtimes/node-ts.md) |
+| node-ts | ✅ Full | [runtimes/node.md](../runtimes/node.md) |
+| node-js | ✅ Full | [runtimes/node.md](../runtimes/node.md) |
 | dotnet  | ⚠️ Emulators only | Not yet supported |
 | python  | ⚠️ Emulators only | Not yet supported |
 | java    | ⚠️ Emulators only | Not yet supported |
 
-> **⚠️ Emulators only:** When an unsupported runtime is detected, proceed with emulator setup (docker-compose) — this is language-agnostic. Skip `.vscode/launch.json` and `.vscode/tasks.json` generation and inform the user to configure those manually or notify and provide best effort attempt.
+> **⚠️ Emulators only:** When an unsupported runtime is detected, proceed with emulator setup (docker-compose) — this is language-agnostic. Skip IDE debug/launch configuration generation and inform the user to configure those manually or notify and provide best effort attempt.
 
 ---
 
@@ -55,41 +56,30 @@ Scan every `function.json` for its `"type"` binding field, **or** scan Python/Ja
 
 ---
 
-## Host Command
+## Startup Command
 
 ```
 func host start
 ```
 
-> Uses the `func` VS Code task type. The Functions Core Tools handle `--inspect` flag injection for Node.js debugging automatically.
+> The Azure Functions Core Tools handle debug flag injection for the appropriate runtime automatically (e.g., `--inspect` for Node.js).
 
 ---
 
 ## Runtime Wiring
 
-The skill assembles `launch.json` and `tasks.json` by combining the debugger fragment from `runtimes/{rt}.md` with the host-start wiring below.
+<!-- Combines with runtimes/{rt}.md (protocol, port) and ide/{ide}.md to produce IDE debug config.
+     Debug port values come from each runtimes/{rt}.md Debugger Properties table. -->
 
-| Runtime | preLaunchTask label | Task type | Problem matcher | Base debug port | Notes |
-|---------|---------------------|-----------|----------------|----------------|-------|
-| node-ts | `func: host start` | `func` | `$func-node-watch` | 9229 | Core Tools injects `--inspect=9229`; attach mode |
-| dotnet  | `func: host start` | `func` | `$func-dotnet-watch` | 5005 | Attach via `${command:pickProcess}` — ⛔ not yet implemented |
-| python  | `func: host start` | `func` | `$func-python-watch` | 5678 | Attach via debugpy — ⛔ not yet implemented |
-| java    | `func: host start` | `func` | `$func-java-watch` | 5005 | Attach via JDWP — ⛔ not yet implemented |
+| Runtime | Startup command | Startup task label | Request Mode | Notes |
+|---------|----------------|-------------------|--------------|-------|
+| node-ts | `func host start` | `func: host start` | `attach` | Core Tools injects `--inspect=<port>` automatically |
+| node-js | `func host start` | `func: host start` | `attach` | Same as node-ts; no compile step in the task chain |
+| dotnet  | `func host start` | `func: host start` | `attach` | Attach via process picker — ⛔ not yet implemented |
+| python  | `func host start` | `func: host start` | `attach` | Attach via debugpy — ⛔ not yet implemented |
+| java    | `func host start` | `func: host start` | `attach` | Attach via JDWP — ⛔ not yet implemented |
 
-The host-start task shape (merged into `tasks.json` alongside the build chain from the runtime file):
-
-```json
-{
-  "type": "func",
-  "label": "func: host start",
-  "command": "host start",
-  "problemMatcher": "$func-{rt}-watch",
-  "isBackground": true,
-  "dependsOn": ["{build/watch task}", "Start Emulators"]
-}
-```
-
-> `dependsOn` list: first entry is the runtime-specific build/watch task label from `runtimes/{rt}.md`; second is always `"Start Emulators"`.
+The startup step depends on: the runtime-specific build/watch step from `runtimes/{rt}.md`, and the "Start Emulators" step.
 
 Place emulator connection strings in `local.settings.json` under `"Values"`:
 

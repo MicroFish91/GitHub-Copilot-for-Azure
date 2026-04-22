@@ -67,7 +67,7 @@ ask_user(
 )
 ```
 
-3. **If the user wants help remapping** — Propose alternative port numbers, update all references (docker-compose service ports, connection strings, convenience scripts, launch config), then resume generation.
+3. **If the user wants help remapping** — Propose alternative port numbers, update all references (docker-compose service ports, connection strings, convenience scripts, IDE debug config), then resume generation.
 4. **If the user will handle it themselves** — Proceed with generation using the original ports. They will resolve conflicts before running `docker compose up`.
 5. **Never remap ports or modify config silently** — Always confirm with the user before making changes.
 

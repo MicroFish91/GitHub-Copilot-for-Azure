@@ -31,7 +31,7 @@ You **MUST** create this plan file BEFORE generating any configuration files. Pr
 | [Emulators](#emulators) | Azure service dependencies running as Docker containers via docker-compose. |
 | [Migrations](#migrations) | *(if applicable)* Database schema applied automatically on `docker compose up`. |
 | [Convenience Scripts](#convenience-scripts) | Convenience scripts for starting / stopping / cleaning emulators and running migrations. |
-| [Launch Configuration](#launch-configuration) | VS Code `launch.json` and `tasks.json` for F5 debugging. |
+| [Launch Configuration](#launch-configuration) | IDE debug/launch and task/build configuration for one-click debugging. |
 | [API Test Collections](#api-test-collections) | Scripts & sample data to invoke each endpoint or trigger for local verification. |
 
 ---
@@ -188,30 +188,33 @@ npm run db:migrate        # apply migrations (emulators must be running)
 
 ## Launch Configuration
 
-<!-- Define the VS Code launch and task configurations for F5 debugging. -->
-<!-- The shape of these configs is project-type specific — see project-types/ references. -->
+<!-- Define the IDE debug/launch and task configurations for one-click debugging. -->
+<!-- The shape of these configs is IDE-specific — see ide/{ide}.md for format. -->
+<!-- The generic debugger properties (port, startup command) come from project-types/ and runtimes/ references. -->
 
-### launch.json
+### Debug/Launch Configuration
 
 <details>
-<summary>launch.json</summary>
+<summary>Debug/launch configuration</summary>
 
-<!-- launch.json configuration block here -->
+<!-- IDE-specific debug/launch configuration block here -->
+<!-- See references/ide/{ide}.md for format -->
 
 </details>
 
-### tasks.json
+### Task/Build Configuration
 
 <details>
-<summary>tasks.json</summary>
+<summary>Task/build configuration</summary>
 
-<!-- tasks.json configuration block with dependency chain here -->
+<!-- IDE-specific task/build configuration block with dependency chain here -->
+<!-- See references/ide/{ide}.md for format -->
 
 </details>
 
 <br>
 
-> If `.vscode/launch.json` and `.vscode/tasks.json` already match this shape, or if the shape already accomplishes the end goals, then no additional changes are needed.
+> If the IDE debug configuration already matches this shape, or if the shape already accomplishes the end goals, then no additional changes are needed.
 
 ---
 
@@ -230,7 +233,7 @@ api-test-collections/
       {optional-sample-data-files}
 ```
 
-> 💡 Once the app is running via **F5**, you can ask the agent to execute these test scripts to verify your endpoints and triggers against `localhost`.
+> 💡 Once the app is running via your IDE's debug action, you can ask the agent to execute these test scripts to verify your endpoints and triggers against `localhost`.
 
 ### {METHOD} {route}
 
@@ -251,16 +254,16 @@ curl -i {url}
 
 ---
 
-## Launch Configuration Checklist
+## Debug Configuration Checklist
 
 > **Managed in Phase 3 by the Agent — replace each ❌ with a real terminal run result.**
 
 ```
-Launch Configuration Checklist:
+Debug Configuration Checklist:
 ❌ {config-name} — Not yet validated
 ```
 
-<!-- After running each config's preLaunchTask commands in the terminal, replace ❌ with ✅ and the ready signal observed (e.g. "Host lock lease acquired", "ready in 312ms"). One line per config. Do NOT mark ✅ without having actually run the commands. -->
+<!-- After running each config's startup commands in the terminal, replace ❌ with ✅ and the ready signal observed (e.g. "Host lock lease acquired", "ready in 312ms"). One line per config. Do NOT mark ✅ without having actually run the commands. -->
 
 ````
 
@@ -275,8 +278,8 @@ Launch Configuration Checklist:
 5. **Number emulators sequentially** — Use `### 1.`, `### 2.`, etc. for each emulator subsection
 6. **Omit Migrations if not applicable** — Only include the Migrations section when database migrations are detected
 7. **Present to user** — Show the plan and ask for approval
-8. **Track status** — Update the **Status** field at the top as you progress. Only set status to `Implemented` after the Launch Configuration Checklist has been filled in with real validation results.
-9. **Fill in the Validation section** — During Phase 3, replace each ❌ stub in the Launch Configuration Checklist with a ✅ or ❌ and the observed result. Do NOT set status to `Implemented` until every stub has been replaced.
+8. **Track status** — Update the **Status** field at the top as you progress. Only set status to `Implemented` after the Debug Configuration Checklist has been filled in with real validation results.
+9. **Fill in the Validation section** — During Phase 3, replace each ❌ stub in the Debug Configuration Checklist with a ✅ or ❌ and the observed result. Do NOT set status to `Implemented` until every stub has been replaced.
 10. **Set Created timestamp** — When first writing the plan, set **Created** to the current UTC datetime in ISO 8601 format (e.g. `2026-03-27T20:08:48Z`). This field must never be changed after initial creation.
 11. **Update Last Updated timestamp** — Set **Last Updated** to the current UTC datetime in ISO 8601 format every time the Status field changes (Planning → Approved → Executing → Implemented) or any other edit is made to the plan.
 

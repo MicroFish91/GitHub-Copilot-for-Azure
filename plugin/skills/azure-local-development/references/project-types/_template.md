@@ -25,7 +25,7 @@
 
 ---
 
-## Host Command
+## Startup Command
 
 <!-- How the app starts locally. E.g.: func host start, docker compose up, npm run dev -->
 
@@ -45,30 +45,32 @@
 
 ---
 
-## Runtime Wiring
+## Runtime Support Matrix
 
-<!-- How to assemble the final launch.json / tasks.json for each supported runtime.
-     The skill reads the debugger fragment from runtimes/{rt}.md, then fills in the
-     host-specific fields from this table to produce the complete VS Code config. -->
+<!-- Tracks implementation readiness — separate from Runtime Wiring below.
+     Fill in status per runtime: ✅ Full, ⚠️ Emulators only, 🔲 Planned. -->
 
-| Runtime | preLaunchTask label | Task type | Problem matcher | Base debug port | Notes |
-|---------|---------------------|-----------|----------------|----------------|-------|
-| node-ts | {host start task} | {type} | {matcher} | {port} | |
-| dotnet  | {host start task} | shell | {matcher} | {port} | |
-| python  | {host start task} | shell | {matcher} | {port} | |
-| java    | {host start task} | shell | {matcher} | {port} | |
-| go      | {host start task} | shell | {matcher} | {port} | |
+| Runtime | Status | Reference |
+|---------|--------|-----------|
+| node-ts | | |
+| node-js | | |
+| dotnet  | | |
+| python  | | |
+| java    | | |
+| go      | | |
 
 ---
 
-## Runtime Support Matrix
+## Runtime Wiring
 
-<!-- High-level status only. Wiring details live in the Runtime Wiring table above. -->
+<!-- Combines with runtimes/{rt}.md (protocol, port) and ide/{ide}.md to produce IDE debug config.
+     VS Code mapping: Startup command → tasks.json "command", Startup task label → tasks.json "label" + launch.json "preLaunchTask", Request Mode → launch.json "request". -->
 
-| Runtime | Status | Notes |
-|---------|--------|-------|
-| node-ts | 🔲 Planned | |
-| dotnet  | 🔲 Planned | |
-| python  | 🔲 Planned | |
-| java    | 🔲 Planned | |
-| go      | 🔲 Planned | |
+| Runtime | Startup command | Startup task label | Request Mode | Notes |
+|---------|----------------|-------------------|--------------|-------|
+| node-ts | {command} | {label} | {attach\|launch} | |
+| node-js | {command} | {label} | {attach\|launch} | |
+| dotnet  | {command} | {label} | {attach\|launch} | |
+| python  | {command} | {label} | {attach\|launch} | |
+| java    | {command} | {label} | {attach\|launch} | |
+| go      | {command} | {label} | {attach\|launch} | |

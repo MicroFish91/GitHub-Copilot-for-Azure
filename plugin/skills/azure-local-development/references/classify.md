@@ -37,7 +37,7 @@ Scan every subdirectory for the following signals. Ignore: `node_modules/`, `.gi
 | 5 | SPA framework detected (React/Vue/Angular/Svelte via `package.json`) **OR** `vite.config.*` / `next.config.*` / `angular.json` present **AND** no `host.json` | **Frontend SPA** | ✅ Implemented | No emulators needed; contributes a launch config + compound entry |
 | ∞ | No match | **Unknown** | — | Ask user or best-effort generic |
 
-> **Frontend SPA projects** do not require emulators or Azure bindings, but they **are** service roots. They contribute a browser launch configuration (e.g., `chrome` type for Vite/React) and a dev-server task. When a frontend is detected alongside a backend, the workspace is multi-service and **must** produce a compound launch configuration.
+> **Frontend SPA projects** do not require emulators or Azure bindings, but they **are** service roots. They contribute a browser debug configuration and a dev-server task. When a frontend is detected alongside a backend, the workspace is multi-service and **must** produce a compound debug configuration. See the active IDE adapter in [ide/](ide/) for the IDE-specific format.
 
 > **🔲 Planned project types:** These stubs are in place but not yet activated. When one is detected, inform the user that only emulator setup can be generated at this time and check [project-types/{type}.md](project-types/) for current status.
 
@@ -58,16 +58,16 @@ Check for Azure Functions SDK after confirming `host.json` exists:
 
 After identifying the project type for a root, determine the language and runtime version:
 
-| File Present | Runtime | Version Source | Launch Config Support |
+| File Present | Runtime | Version Source | Debug Config Support |
 |-------------|---------|---------------|----------------------|
 | `package.json` (+ `tsconfig.json`) | **node-ts** | `engines.node` / `.nvmrc` / `.node-version` | ✅ Implemented |
-| `package.json` (no TypeScript) | **node-ts** | Same | ✅ Implemented |
+| `package.json` (no TypeScript) | **node-js** | Same | ✅ Implemented |
 | `*.csproj` | **dotnet** | `<TargetFramework>` element | ⛔ Not yet implemented |
 | `requirements.txt` / `pyproject.toml` | **python** | `.python-version` / `requires-python` | ⛔ Not yet implemented |
 | `pom.xml` / `build.gradle` | **java** | `<java.version>` / `sourceCompatibility` | ⛔ Not yet implemented |
 | `go.mod` | **go** | `go` directive | ⛔ Not yet implemented |
 
-> **⛔ Unimplemented runtimes:** Proceed with emulator setup (language-agnostic). Skip `.vscode/launch.json` and `.vscode/tasks.json` generation and inform the user to configure those manually unless requested for best effort attempt.
+> **⛔ Unimplemented runtimes:** Proceed with emulator setup (language-agnostic). Skip IDE debug/launch configuration generation and inform the user to configure those manually unless requested for best effort attempt.
 
 ---
 

@@ -19,7 +19,7 @@ Each service root is assigned a short ID used to namespace tasks and launch conf
 
    | Runtime | File | Field |
    |---------|------|-------|
-   | node-ts | `package.json` | `"name"` |
+   | node | `package.json` | `"name"` |
    | dotnet | `*.csproj` | `<AssemblyName>`; falls back to the `.csproj` filename without extension |
    | python | `pyproject.toml` | `name` under `[project]` or `[tool.poetry]`; falls back to `[metadata].name` in `setup.cfg` |
    | java | `pom.xml` | `<artifactId>`; falls back to `rootProject.name` in `settings.gradle` |
@@ -59,33 +59,26 @@ The nearest common ancestor directory of all service roots. Shared artifacts wri
 
 - `docker-compose.yml`
 - `emulators:start` / `emulators:stop` scripts
-- VS Code compound launch configuration
+- IDE compound debug configuration (see [ide/{ide}.md](ide/))
 
 ---
 
 ## Port Assignment
 
-When two or more services share the same project type, each needs a unique debug port. Assign ports sequentially from the base port for that runtime:
+When two or more services share the same runtime, each needs a unique debug port. Look up the `Base debug port` from `runtimes/{rt}.md` and assign ports sequentially: first service gets the base port, second gets base + 1, third gets base + 2, etc.
 
-| Runtime | Base Debug Port | Second Service | Third Service |
-|---------|----------------|----------------|---------------|
-| Functions / App Service (Node.js) | 9229 | 9230 | 9231 |
-| Functions (.NET) | 5005 | 5006 | 5007 |
-| App Service (Python) | 5678 | 5679 | 5680 |
-| Java (JDWP) | 5005 | 5006 | 5007 |
-
-Ports are written into each service's `launch.json` entry. [global-rules.md](global-rules.md) performs the final conflict check across all assigned ports before generate runs.
+> Browser-based project types (e.g., Frontend SPA) do not use debug ports — they connect via the dev server URL instead.
 
 ---
 
 ## Partial Configuration Handling
 
-Check each service root for existing VS Code config before generating anything. A service is considered already configured if it has an existing `launch.json` entry matching its service ID.
+Check each service root for existing IDE debug config before generating anything. A service is considered already configured if it has an existing debug configuration entry matching its service ID. See the active IDE adapter in [ide/](ide/) for how to detect existing configurations and merge rules.
 
 | State | Action |
 |-------|--------|
-| **Fully configured service** | Skip all artifact generation for that service; carry its existing launch entry into the compound config unchanged |
-| **Partially configured service** | Generate only what is missing (e.g. tasks but no launch config → generate launch only) |
+| **Fully configured service** | Skip all artifact generation for that service; carry its existing config into the compound configuration unchanged |
+| **Partially configured service** | Generate only what is missing (e.g. tasks but no debug config → generate debug config only) |
 | **Unconfigured service** | Generate all artifacts as normal |
 
 Adding a second service to an existing single-service repo is safe — the original service's config is preserved and the new service is added alongside it.
@@ -110,72 +103,12 @@ services:
 
 ---
 
-## Compound Launch Config Shape
+## Compound Debug Configuration
 
-> **⛔ MANDATORY:** When 2+ service roots are detected (including Frontend SPA projects), a compound launch configuration **must** be generated. A frontend SPA counts as a service root for this purpose — it does not need emulators, but it does need a launch config entry and inclusion in the compound.
+> ⛔ **MANDATORY:** When 2+ service roots are detected (including Frontend SPA projects), a compound debug configuration **must** be generated. A frontend SPA counts as a service root for this purpose — it does not need emulators, but it does need a debug config entry and inclusion in the compound.
 
-`generate.md` produces this compound configuration using service IDs from this phase:
+The compound configuration uses service IDs from this phase. One entry per service using its assigned ID.
 
-```json
-{
-  "name": "Start All",
-  "configurations": ["{id} (debug)", "..."],
-  "preLaunchTask": "Start Emulators",
-  "stopAll": true
-}
-```
+> ⚠️ The compound references the shared "Start Emulators" task/step only when emulators are required. Omit it when no emulators are needed.
 
-One entry per service using its assigned ID. `preLaunchTask` always points to the shared "Start Emulators" task at the workspace root.
-
-### Frontend SPA Launch Entry
-
-When a Frontend SPA service root is detected, add a browser launch configuration and a dev-server task:
-
-```json
-// launch.json configuration entry
-{
-  "name": "{id} (debug)",
-  "type": "chrome",
-  "request": "launch",
-  "url": "http://localhost:{dev-server-port}",
-  "webRoot": "${workspaceFolder}/{service-root}/src",
-  "preLaunchTask": "{id} dev"
-}
-```
-
-```json
-// tasks.json task entry — Vite example (see framework table below for others)
-{
-  "type": "shell",
-  "label": "{id} dev",
-  "command": "npm run dev",
-  "options": { "cwd": "${workspaceFolder}/{service-root}" },
-  "isBackground": true,
-  "problemMatcher": {
-    "owner": "vite",
-    "pattern": { "regexp": "^$" },
-    "background": {
-      "activeOnStart": true,
-      "beginsPattern": "VITE",
-      "endsPattern": "ready in \\d+"
-    }
-  }
-}
-```
-
-> ⚠️ **IMPORTANT: Background tasks MUST have a real `problemMatcher`.**
-> Avoid `"problemMatcher": []` on a task with `"isBackground": true`.
-> An empty matcher causes VS Code to display a blocking dialog:
-> *"The task has not exited and doesn't have a 'problemMatcher' defined."*
-> Always use a framework-specific background matcher from the table below.
-
-### Framework Detection & Problem Matchers
-
-| Framework | Default Dev Port | Detection | Background Problem Matcher |
-|-----------|-----------------|----------|---------------------------|
-| Vite | 5173 | `vite.config.*` or `vite` in devDependencies | `beginsPattern: "VITE"`, `endsPattern: "ready in \\d+"` |
-| Next.js | 3000 | `next.config.*` or `next` in dependencies | `beginsPattern: "\\s*ready"`, `endsPattern: "started server on"` |
-| Angular | 4200 | `angular.json` | `beginsPattern: "Compiling"`, `endsPattern: "Compiled successfully"` |
-| Create React App | 3000 | `react-scripts` in dependencies | `beginsPattern: "Starting the development server"`, `endsPattern: "Compiled"` |
-
-> All background problem matchers must include `"activeOnStart": true` and a `"pattern"` with `"regexp": "^$"` (no-op error pattern). The `owner` field should be set to the framework name (lowercased).
+See the active IDE adapter in [ide/](ide/) for the IDE-specific compound configuration format. See [project-types/frontend-spa.md](project-types/frontend-spa.md) for SPA-specific debug config, dev-server task, and framework detection rules.

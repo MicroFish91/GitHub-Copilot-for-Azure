@@ -15,56 +15,40 @@
 
 ---
 
-## Debugger Fragment
+## Debugger Properties
 
-<!-- Fields contributed to launch.json by this runtime.
-     The preLaunchTask and configuration name are set by the project type's Runtime Wiring table.
-     See project-types/{type}.md § Runtime Wiring. -->
+<!-- Generic debug properties for this runtime.
+     The IDE adapter in ide/{ide}.md uses these facts to generate IDE-specific debug configuration.
+     See project-types/{type}.md § Runtime Wiring for how these combine with the host command. -->
 
-```json
-{
-  "type": "{type}",
-  "request": "{attach|launch}",
-  "port": {port},
-  "restart": true
-}
-```
-
-| Field | Value | Why |
-|-------|-------|-----|
-| `type` | `"{type}"` | {debugger name} |
-| `request` | `"{attach\|launch}"` | {reason} |
-| `port` | `{port}` | Default debug port for this runtime; overridden per-service in monorepos |
+| Property | Value | Notes |
+|----------|-------|-------|
+| Debug protocol | `{protocol}` | The wire protocol the runtime exposes (e.g., `Node Inspector`, `CoreCLR DAP`, `debugpy DAP`, `JDWP`, `Delve DAP`). Each IDE adapter maps this to its own debugger identifier — see `ide/{ide}.md`. |
+| Base debug port | `{port}` | Default debug port for this runtime; overridden per-service in monorepos |
 
 ---
 
-## Build Chain Tasks
+## Build Chain
 
-<!-- Tasks owned by this runtime: install, build/watch.
-     The host-start task is provided by the project type's Runtime Wiring table, not this file.
-     Wire: host-start dependsOn ["{build/watch task}", "Start Emulators"]. -->
+<!-- Build steps owned by this runtime: install, build/watch.
+     The startup task is provided by the project type's Runtime Wiring table, not this file.
+     Wire: startup task depends on ["build/watch step", "Start Emulators"]. -->
 
-Chain shape (host-start task comes from the project type):
+Chain shape (startup task comes from the project type):
 
 ```
-"{host start task}"              ← from project-types/{type}.md Runtime Wiring
-       ├── dependsOn: "{build/watch task}"  ← this file
-       └── dependsOn: "Start Emulators"     ← always present
+"{startup task}"              ← from project-types/{type}.md Runtime Wiring
+       ├── dependsOn: "{build/watch step}"  ← this file
+       └── dependsOn: "Start Emulators"     ← only when emulators are required
 ```
 
-```json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "type": "shell",
-      "label": "Start Emulators",
-      "command": "docker compose down && docker compose up -d",
-      "problemMatcher": []
-    }
-  ]
-}
-```
+### Build Commands
+
+| Step | Command | Purpose | Background? |
+|------|---------|---------|------------|
+| Start Emulators | `docker compose down && docker compose up -d` | Start all emulator services | No |
+
+See the active IDE adapter in [ide/{ide}.md](../ide/) for how these build steps are rendered into IDE-specific task configuration.
 
 ---
 

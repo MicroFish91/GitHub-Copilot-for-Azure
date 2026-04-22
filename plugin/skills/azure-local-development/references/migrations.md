@@ -12,7 +12,7 @@ Database migrations are **not** a separate manual step. When migrations are dete
 2. Runs all pending migrations
 3. Exits
 
-This means `docker compose up -d` (or pressing F5) automatically sets up the database schema.
+This means `docker compose up -d` (or starting a debug session) automatically sets up the database schema.
 
 ---
 
@@ -451,11 +451,11 @@ echo "Migrations complete."
 
 ## Integration with Task Chain
 
-Migrations are handled **entirely by docker-compose**. No changes to the VS Code task chain are needed:
+Migrations are handled **entirely by docker-compose**. No changes to the IDE task/build chain are needed:
 
 ```
-F5 → "func: host start"
-       ├── dependsOn: "npm watch (functions)"
+Debug start → "{host start task}"
+       ├── dependsOn: "{build/watch step}"
        │                └── ... build chain ...
        └── dependsOn: "Start Emulators"  ← docker compose up -d handles migration ordering
 ```
@@ -466,7 +466,7 @@ When `docker compose up -d` runs:
 2. Migration service starts, runs all migrations, and exits
 3. Application can now connect to a fully-migrated database
 
-> This is the same `Start Emulators` task — no additional VS Code task is needed because docker-compose handles the dependency ordering internally.
+> This is the same "Start Emulators" step — no additional IDE task is needed because docker-compose handles the dependency ordering internally.
 
 ---
 

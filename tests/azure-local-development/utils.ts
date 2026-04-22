@@ -34,7 +34,7 @@ export function expectLaunchConfigurations(projectPath: string, expectedConfigCo
 
 function getLaunchConfigurationChecklist(localDevelopmentContent: string): string {
   const lines: string[] = localDevelopmentContent.split("\n");
-  const checklistStartIdx = lines.findIndex(l => l.includes("## Launch Configuration Checklist"));
+  const checklistStartIdx = lines.findIndex(l => l.includes("## Debug Configuration Checklist"));
   return checklistStartIdx !== -1 ? lines.slice(checklistStartIdx).join("\n") : "";
 }
 

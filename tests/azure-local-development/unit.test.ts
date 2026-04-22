@@ -194,10 +194,14 @@ describe(`${SKILL_NAME} - Unit Tests`, () => {
       validateStepContent = skill.content.slice(phaseThreeIndex, outputsIndex);
     });
 
-    test("instructs to validate the configuration checklist", () => {
-      expect(validateStepContent).toContain("Launch Configuration Checklist");
+    test("instructs how to validate the configuration checklist", () => {
+      expect(validateStepContent).toContain("Debug Configuration Checklist");
       expect(validateStepContent).toContain("✅");
       expect(validateStepContent).toContain("❌");
+    });
+
+    test("references IDE specific validation", () => {
+      expect(validateStepContent).toContain("ide/");
     });
 
     test("mentions to update plan status to 'Implemented'", () => {
@@ -214,10 +218,10 @@ describe(`${SKILL_NAME} - Unit Tests`, () => {
       expect(outputContent).toContain("Plan");
       expect(outputContent).toContain("Diagram");
       expect(outputContent).toContain("Docker Compose");
-      expect(outputContent).toContain("Launch Config");
-      expect(outputContent).toContain("Task Config");
+      expect(outputContent).toContain("IDE Debug Config");
+      expect(outputContent).toContain("IDE Build Config");
       expect(outputContent).toContain("Convenience Scripts");
-      expect(outputContent).toContain("API Test Collections");
+      expect(outputContent).toContain("API Test Collection");
     });
   });
 
@@ -227,7 +231,7 @@ describe(`${SKILL_NAME} - Unit Tests`, () => {
       const nextStepsContent = skill.content.slice(nextStepsIndex);
 
       expect(nextStepsContent).toContain("Start Debugging");
-      expect(nextStepsContent).toContain("Offer API Testing");
+      expect(nextStepsContent).toContain("API Testing");
       expect(nextStepsContent).toContain("Azure Cloud Deployment");
     });
   });

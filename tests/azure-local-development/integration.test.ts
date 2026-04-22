@@ -83,7 +83,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
         "## Convenience Scripts",
         "## Launch Configuration",
         "## API Test Collections",
-        "## Launch Configuration Checklist",
+        "## Debug Configuration Checklist",
       ]);
     }));
 

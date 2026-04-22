@@ -10,7 +10,7 @@
 
 | Category | Examples |
 |----------|----------|
-| **Overwrite** | Replace existing `.vscode/launch.json`, `tasks.json`, `docker-compose.yml` |
+| **Overwrite** | Replace existing IDE debug/launch or task/build configuration files (see [ide/{ide}.md](ide/)), `docker-compose.yml` |
 | **Delete** | Remove existing emulator config, test collections, npm scripts |
 | **Modify package.json** | Adding scripts, dependencies, or devDependencies |
 | **Docker operations** | `docker compose down -v` (destroys volumes), pruning containers |
@@ -20,14 +20,14 @@
 
 ```
 ask_user(
-  question: "This will overwrite your existing .vscode/launch.json. Continue?",
+  question: "This will overwrite your existing IDE debug configuration. Continue?",
   choices: ["Yes, overwrite", "No, merge with existing", "No, cancel"]
 )
 ```
 
 ### No Exceptions
 
-- Do NOT assume the user wants to overwrite existing VS Code config
+- Do NOT assume the user wants to overwrite existing IDE config
 - Do NOT silently add npm scripts to `package.json`
 - Do NOT start Docker containers without confirming
 - Always prefer **merge** over **overwrite** when existing config is detected
@@ -40,8 +40,8 @@ When existing configuration is detected:
 
 | Found | Action |
 |-------|--------|
-| `.vscode/launch.json` exists | **Merge** new configurations into existing file; ask user if conflicts arise |
-| `.vscode/tasks.json` exists | **Merge** new tasks into existing file; ask user if conflicts arise |
+| IDE debug/launch config exists | **Merge** new configurations into existing file; ask user if conflicts arise. See [ide/{ide}.md](ide/) for file paths. |
+| IDE task/build config exists | **Merge** new tasks into existing file; ask user if conflicts arise. See [ide/{ide}.md](ide/) for file paths. |
 | `docker-compose.yml` exists | **Merge** new services into existing file; ask user if conflicts arise |
 | `package.json` scripts exist | **Add** new scripts only if names don't collide; ask user on collision |
 
