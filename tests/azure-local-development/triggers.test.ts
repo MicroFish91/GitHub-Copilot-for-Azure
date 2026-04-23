@@ -48,7 +48,7 @@ describe(`${SKILL_NAME} - Trigger Tests`, () => {
       "I need to hook up a local Azure Storage emulator for this project",
       "Add a Service Bus emulator to my local setup",
       "Create a local development plan",
-      "Verify that my app actually works locally before I push to Azure",
+      "Verify that my app works locally before I push to Azure",
       "I just created this app, now help me run it locally",
       "Help me locally debug and verify my Azure Functions project",
     ];
