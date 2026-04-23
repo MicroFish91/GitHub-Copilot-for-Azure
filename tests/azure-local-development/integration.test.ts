@@ -40,6 +40,8 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
 
   // Todo: describe(skill-invocation)
 
+  // Todo: Should warn when not yet supported features are found (e.g. emulator, IDE, projectType, runtime)
+
   // ----- Brownfield Tests ------
   const BROWNFIELD_PROJECTS_REPO = "https://github.com/MicroFish91/azure-skill-brownfield-projects.git";
 
