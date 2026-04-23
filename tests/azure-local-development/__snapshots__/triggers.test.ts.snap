@@ -2,7 +2,7 @@
 
 exports[`azure-local-development - Trigger Tests Trigger Keywords Snapshot skill description triggers match snapshot 1`] = `
 {
-  "description": "Setup project and local development environment so that the developer can start debugging from a single action. Guides installation of prerequisites, Azure emulator setup via docker-compose (Azurite, Postgres, Service Bus, Event Hubs, etc.), IDE debug/launch config, and API test collections for basic app verification. WHEN: "local dev", "local development", "local dev setup", "set up local environment", "local environment setup", "local development plan", "run locally", "run my app locally", "run my project locally", "verify locally", "debug locally", "debug my project in VS Code", "F5 debugging", "launch.json", "tasks.json", "set up emulators", "azurite", "postgres emulator", "service bus emulator", "event hubs emulator", "local emulator", "emulator setup". DO NOT USE FOR: deploying to Azure (use azure-deploy), generating Terraform or Bicep (use azure-prepare), Amazon, AWS, Lambda, Google, GCP, container diagnostics (use azure-diagnostics), security audits (use azure-compliance), monitoring (use appinsights-instrumentation).",
+  "description": "Setup project and local development environment so that the developer can start debugging from a single action. Guides installation of prerequisites, Azure emulator setup via docker-compose (Azurite, Postgres, Service Bus, Event Hubs, etc.), IDE debug/launch config, and API test collections for basic app verification. WHEN: "local dev", "local development", "local dev setup", "local environment setup", "debug my project locally", "debug my project in VS Code", "F5 debugging", "launch.json", "tasks.json", "set up emulators". DO NOT USE FOR: deploying to Azure (use azure-deploy), generating Terraform or Bicep (use azure-prepare), Amazon, AWS, Lambda, Google, GCP, container diagnostics (use azure-diagnostics), security audits (use azure-compliance), monitoring (use appinsights-instrumentation).",
   "extractedKeywords": [
     "action",
     "appinsights-instrumentation",
@@ -40,17 +40,16 @@ exports[`azure-local-development - Trigger Tests Trigger Keywords Snapshot skill
     "local",
     "locally",
     "monitoring",
-    "plan",
     "postgres",
     "prerequisites",
     "service",
+    "setup",
     "single",
     "tasks",
     "test",
     "that",
     "validation",
     "verification",
-    "verify",
     "when",
   ],
   "name": "azure-local-development",
@@ -95,17 +94,16 @@ exports[`azure-local-development - Trigger Tests Trigger Keywords Snapshot skill
   "local",
   "locally",
   "monitoring",
-  "plan",
   "postgres",
   "prerequisites",
   "service",
+  "setup",
   "single",
   "tasks",
   "test",
   "that",
   "validation",
   "verification",
-  "verify",
   "when",
 ]
 `;
