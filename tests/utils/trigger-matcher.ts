@@ -25,9 +25,10 @@ export class TriggerMatcher {
   private skill: LoadedSkill;
   private keywords: string[];
 
-  constructor(skill: LoadedSkill) {
+  constructor(skill: LoadedSkill, excludeKeywords: string[] = []) {
     this.skill = skill;
-    this.keywords = this._extractKeywords();
+    this.keywords = this._extractKeywords()
+      .filter(k => !excludeKeywords.some(ek => ek.toLowerCase() === k.toLowerCase()));
   }
 
   /**
