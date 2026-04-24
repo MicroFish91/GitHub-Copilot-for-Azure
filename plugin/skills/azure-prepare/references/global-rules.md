@@ -25,7 +25,7 @@ ask_user(
 )
 ```
 
-### No Exceptions
+### Rules
 
 - Do NOT assume user wants to delete/overwrite
 - Do NOT proceed based on "the user asked to deploy" (deploy ≠ delete old)

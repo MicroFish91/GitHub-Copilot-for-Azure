@@ -17,7 +17,7 @@ Before generating any artifact, verify:
 1. ✅ Plan exists at `.azure/local-development-plan.md` with status `Approved` or `Executing`
 2. ✅ Project type and runtime were correctly detected (from [classify.md](classify.md))
 3. ✅ Inventory results are documented in the plan (from [inventory.md](inventory.md))
-4. ✅ No existing file will be silently overwritten (see [Global Rules](global-rules.md))
+4. ✅ No existing file will be silently overwritten
 
 ---
 
