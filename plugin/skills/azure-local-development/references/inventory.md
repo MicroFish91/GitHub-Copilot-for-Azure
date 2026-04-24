@@ -23,11 +23,11 @@ For Azure Functions projects, parse `function.json` files **or** decorator/attri
 | `tableTrigger`, `table` (input/output) | Azure Table Storage | [emulators/azurite.md](emulators/azurite.md) |
 | `httpTrigger` | (none — built into Functions host) | — |
 | `timerTrigger` | (none — built into Functions host) | — |
-| `cosmosDBTrigger`, `cosmosDB` (input/output) | Azure Cosmos DB | [emulators/cosmosdb.md](emulators/cosmosdb.md) |
-| `serviceBusTrigger`, `serviceBus` (output) | Azure Service Bus | [emulators/servicebus.md](emulators/servicebus.md) |
-| `eventHubTrigger`, `eventHub` (output) | Azure Event Hubs | [emulators/eventhubs.md](emulators/eventhubs.md) |
+| `cosmosDBTrigger`, `cosmosDB` (input/output) | Azure Cosmos DB | [limited-support.md](limited-support.md) |
+| `serviceBusTrigger`, `serviceBus` (output) | Azure Service Bus | [limited-support.md](limited-support.md) |
+| `eventHubTrigger`, `eventHub` (output) | Azure Event Hubs | [limited-support.md](limited-support.md) |
 | `signalR`, `signalRConnectionInfo` | Azure SignalR | No local emulator — use dev-tier Azure instance |
-| `sql`, `sqlTrigger` | Azure SQL | [emulators/sql-edge.md](emulators/sql-edge.md) |
+| `sql`, `sqlTrigger` | Azure SQL | [limited-support.md](limited-support.md) |
 
 ### 1b. Container App / App Service: SDK Scan
 
@@ -36,11 +36,11 @@ For non-Functions projects, scan dependency files for Azure SDK packages that im
 | Package Pattern | Azure Service | Emulator Reference |
 |----------------|---------------|-------------------|
 | `@azure/storage-blob`, `@azure/storage-queue` | Azure Storage | [emulators/azurite.md](emulators/azurite.md) |
-| `@azure/cosmos` | Cosmos DB | [emulators/cosmosdb.md](emulators/cosmosdb.md) |
-| `@azure/service-bus` | Service Bus | [emulators/servicebus.md](emulators/servicebus.md) |
-| `@azure/event-hubs` | Event Hubs | [emulators/eventhubs.md](emulators/eventhubs.md) |
+| `@azure/cosmos` | Cosmos DB | [limited-support.md](limited-support.md) |
+| `@azure/service-bus` | Service Bus | [limited-support.md](limited-support.md) |
+| `@azure/event-hubs` | Event Hubs | [limited-support.md](limited-support.md) |
 | `@azure/data-tables` | Table Storage | [emulators/azurite.md](emulators/azurite.md) |
-| `mssql`, `tedious` | Azure SQL | [emulators/sql-edge.md](emulators/sql-edge.md) |
+| `mssql` | Azure SQL | [limited-support.md](limited-support.md) |
 | `pg`, `postgres`, `@prisma/client` (postgres provider) | PostgreSQL¹ | [emulators/postgres.md](emulators/postgres.md) |
 
 > ¹ PostgreSQL has no Azure-provided emulator. If the project targets **Azure Cosmos DB for PostgreSQL**, note that no local emulator is available — flag this in the plan.
@@ -63,25 +63,30 @@ cat .env .env.local .env.development 2>/dev/null | grep -i "connection\|storage\
 
 When a database dependency is detected, scan for migration evidence using the **three-layer detection** approach defined in [migrations.md](migrations.md):
 
-1. **Layer 1 — Migration Files:** Look for migration directories and files (`migrations/*.sql`, `prisma/migrations/`, `drizzle/`, JS/TS migration files, etc.)
-2. **Layer 2 — Dependencies:** Check `dependencies` and `devDependencies` for migration tool packages
-3. **Layer 3 — Existing Scripts:** Check script runners for migration-related commands
+1. **Layer 1 — Migration Files:** Look for migration directories and files (`migrations/*.sql`, `prisma/migrations/`, `alembic/versions/`, `src/main/resources/db/migration/`, etc.)
+2. **Layer 2 — Dependencies:** Check the project's dependency manifest for migration tool packages (e.g., `package.json`, `requirements.txt`, `pyproject.toml`, `pom.xml`, `*.csproj`)
+3. **Layer 3 — Existing Scripts:** Check script runners and build configs for migration-related commands
 
 ```bash
 # Layer 1: Check for migration files
 ls migrations/*.sql 2>/dev/null && echo "FOUND: Raw SQL migrations"
-test -d prisma/migrations && echo "FOUND: Prisma migrations directory"
-test -f prisma/schema.prisma && echo "FOUND: Prisma schema"
-test -d drizzle && echo "FOUND: Drizzle migrations directory"
-test -f drizzle.config.ts -o -f drizzle.config.js 2>/dev/null && echo "FOUND: Drizzle config"
-test -f knexfile.js -o -f knexfile.ts 2>/dev/null && echo "FOUND: Knex config"
-ls migrations/*.ts migrations/*.js 2>/dev/null && echo "FOUND: JS/TS migration files"
+test -d prisma/migrations && echo "FOUND: Prisma migrations (Node.js)"
+test -d alembic/versions && echo "FOUND: Alembic migrations (Python)"
+test -d src/main/resources/db/migration && echo "FOUND: Flyway migrations (Java)"
+ls migrations/*.ts migrations/*.js migrations/*.py 2>/dev/null && echo "FOUND: Code-based migration files"
 
-# Layer 2: Check dependencies and devDependencies
-node -e "const p=require('./package.json'); const all={...p.dependencies,...p.devDependencies}; ['prisma','@prisma/client','knex','drizzle-kit','drizzle-orm','typeorm','sequelize','sequelize-cli','node-pg-migrate','db-migrate'].forEach(d => { if(all[d]) console.log('DEP:', d, all[d]) })" 2>/dev/null
+# Layer 2: Check dependency manifests for migration tools
+# Node.js — package.json
+node -e "const p=require('./package.json'); const all={...p.dependencies,...p.devDependencies}; ['prisma','drizzle-kit','typeorm','knex'].forEach(d => { if(all[d]) console.log('DEP:', d, all[d]) })" 2>/dev/null
+# Python — requirements.txt / pyproject.toml
+grep -i "alembic\|django\|flask-migrate" requirements.txt pyproject.toml 2>/dev/null
+# Java — pom.xml / build.gradle
+grep -i "flyway\|liquibase" pom.xml build.gradle 2>/dev/null
+# .NET — *.csproj
+grep -i "EntityFrameworkCore\|FluentMigrator" *.csproj 2>/dev/null
 
-# Layer 3: Check for existing migration scripts
-node -e "const s=require('./package.json').scripts||{}; Object.entries(s).filter(([k,v])=>/migrat|prisma|knex|drizzle|typeorm|sequelize|db-migrate|schema/i.test(k+v)).forEach(([k,v])=>console.log('SCRIPT:', k, '→', v))" 2>/dev/null
+# Layer 3: Check for existing migration scripts/commands
+grep -ri "migrat\|schema\|db:push\|db:seed" package.json Makefile Taskfile.yml scripts/ 2>/dev/null
 ```
 
 Cross-reference all three layers per [migrations.md § Synthesis](migrations.md):
@@ -92,9 +97,9 @@ Cross-reference all three layers per [migrations.md § Synthesis](migrations.md)
 
 ---
 
-## Step 3: Detect Existing Configuration
+## Step 3: Detect Existing Configurations
 
-Check which local-dev artifacts already exist in the workspace:
+Check which local development artifacts already exist in the workspace:
 
 | File | Status Values |
 |------|--------------|
@@ -109,48 +114,20 @@ Check which local-dev artifacts already exist in the workspace:
 
 If existing config is found, note it in the plan — the generate phase must **merge**, not overwrite.
 
-### Stale Emulator Data Directories
-
-When setting up a **new** project (e.g. referencing a fresh `.azure/project-plan.md`), check for leftover emulator data directories from a previous run:
-
-| Directory | Emulator |
-|-----------|----------|
-| `.postgres/` | PostgreSQL |
-| `.azurite/` | Azurite (blob/queue/table) |
-| `.cosmos/` | Cosmos DB Emulator |
-| `.servicebus/` | Service Bus Emulator |
-
-If any exist in the workspace root, **inform the user immediately** and ask how to proceed:
-
-```
-ask_user(
-  question: "The following stale emulator data directories were found from a previous run:\n\n- .postgres/\n- .azurite/\n\nThese can cause container startup failures (e.g. PostgreSQL initdb errors). How would you like to handle this?",
-  choices: [
-    "Delete them and start fresh (recommended for new projects)",
-    "Keep them — I want to preserve the existing data"
-  ]
-)
-```
-
-If the user chooses to delete, remove the directories before proceeding. **Never delete data directories silently.**
-
----
-
 ## Step 4: Detect Prerequisites
 
-Check for required tools on the developer's machine. Only check tools relevant to the detected project type and runtime.
+Check for required tools on the developer's machine. Only check tools relevant to the detected project type and runtime. Example:
 
 | Tool | Detection Command | Required For |
 |------|-------------------|-------------|
+| Azure CLI | `az --version` | Some API test collection scripts |
+| Azure Functions Core Tools | `func --version` | Running Functions host locally |
 | Node.js | `node --version` | Node.js / TypeScript projects |
 | npm | `npm --version` | Node.js dependency management |
-| Azure Functions Core Tools | `func --version` | Running Functions host locally |
 | Docker | `docker --version` | Running emulators |
 | Docker Compose | `docker compose version` | Orchestrating emulators |
-| .NET SDK | `dotnet --version` | .NET projects (⛔ launch config not yet in runtimes/dotnet.md) |
-| Python | `python3 --version` | Python projects (⛔ launch config not yet in runtimes/python.md) |
-| Java / Maven | `mvn --version` | Java projects (⛔ launch config not yet in runtimes/java.md) |
-| Azure CLI | `az --version` | Some API test collection scripts |
+| .NET SDK | `dotnet --version` | .NET projects |
+| Python | `python3 --version` | Python projects |
 
 ---
 

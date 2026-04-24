@@ -71,24 +71,15 @@ Determine the target IDE for the workspace. The IDE applies to the entire worksp
 
 Normalize the user's IDE reference to a **canonical ID** using this table. These are **different products** — do NOT treat one as shorthand for another.
 
-| User says | Canonical ID | Maps to |
-|-----------|-------------|---------|
-| "VS Code", "VSCode", "Visual Studio Code", "Code" | `vscode` | **VS Code** |
-| "Visual Studio", "VS" (without "Code") | `visual-studio` | **Visual Studio** |
-| "JetBrains", "IntelliJ", "Rider", "WebStorm", "PyCharm" | `jetbrains` | **JetBrains** |
+| User says | Canonical ID | Maps to | Reference |
+|-----------|-------------|---------|-----------|
+| "VS Code", "VSCode", "Visual Studio Code", "Code" | `vscode` | **VS Code** | [ide/vscode.md](ide/vscode.md) |
+| "Visual Studio", "VS" (without "Code") | `visual-studio` | **Visual Studio** | [limited-support.md](limited-support.md) |
+| Other | — | — | [limited-support.md](limited-support.md) |
 
 > ⛔ **"Visual Studio" ≠ "VS Code".** These are different IDEs. If the user says "Visual Studio" or "VS", you MUST classify as `visual-studio`, NOT `vscode`. Misclassifying the IDE violates this rule.
 
 After normalizing, check whether `references/ide/{canonical-id}.md` exists. If it does NOT exist, the IDE has **limited support** — you MUST follow the [limited-support.md](limited-support.md) emission protocol before proceeding. Do NOT silently fall back to a supported IDE.
-
-### IDE Detection Table
-
-| # | IDE | Canonical ID | Status | Reference |
-|---|-----|-------------|--------|-----------|
-| 1 | **VS Code** or **VS Code Insiders** | `vscode` | ✅ Implemented | [ide/vscode.md](ide/vscode.md) |
-| 2 | **Visual Studio** | `visual-studio` | 🔲 Planned | [limited-support.md](limited-support.md) |
-| 3 | **JetBrains** | `jetbrains` | 🔲 Planned | [limited-support.md](limited-support.md) |
-| ∞ | No match | — | 🔲 Planned | [limited-support.md](limited-support.md) |
 
 ---
 

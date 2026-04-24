@@ -50,7 +50,7 @@ ask_user(
 
 ## Port Conflict Pre-Flight
 
-Before generating any files, scan all ports required by the planned emulators. Run `lsof -i -P -n` (macOS/Linux) filtered to the specific ports listed in the approved plan. For each occupied port, identify the process name and PID.
+Before generating any files, scan all ports required by the planned emulators (e.g. `lsof -i -P -n`).   For each occupied port, identify the process name and PID.
 
 If any conflicts are found:
 
@@ -67,7 +67,7 @@ ask_user(
 )
 ```
 
-3. **If the user wants help remapping** — Propose alternative port numbers, update all references (docker-compose service ports, connection strings, convenience scripts, IDE debug config), then resume generation.
+3. **If the user wants help remapping** — Propose alternative port numbers, update all references in the plan and project files (docker-compose service ports, connection strings, convenience scripts, IDE debug config), then resume generation.
 4. **If the user will handle it themselves** — Proceed with generation using the original ports. They will resolve conflicts before running `docker compose up`.
 5. **Never remap ports or modify config silently** — Always confirm with the user before making changes.
 

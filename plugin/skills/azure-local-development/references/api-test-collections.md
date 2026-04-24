@@ -1,12 +1,12 @@
 # API Test Collection Patterns
 
-> Reference for generating `api-test-collections/local-development/` scripts. Scripts are language-agnostic shell commands (`curl`, Azure CLI) that exercise the running app and its emulators.
->
-> **HTTP patterns** use `{baseUrl}` — the project type supplies the base URL (e.g., `http://localhost:7071/api` for Functions). All other patterns target the emulator directly and are reusable across project types.
+> Reference for generating `api-test-collections/local-development/` scripts. Scripts should be language-agnostic commands that exercise the running app and test its integration with any live emulators.
 
 ---
 
 ## HTTP
+
+ **HTTP patterns** use `{baseUrl}` — the project type supplies the base URL (e.g., `http://localhost:7071/api` for Functions). All other patterns target the emulator directly and are reusable across project types.
 
 ### GET request
 
