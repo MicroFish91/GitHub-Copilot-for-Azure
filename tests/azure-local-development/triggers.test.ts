@@ -12,7 +12,7 @@ import { loadSkill, LoadedSkill } from "../utils/skill-loader";
 
 const SKILL_NAME = "azure-local-development";
 
-const EXCLUDE_KEYWORDS = ["deploy", "deployment", "container", "terraform", "bicep", "security", "monitor", "Amazon", "AWS", "Lambda", "Google", "GCP"];
+const EXCLUDE_KEYWORDS = ["deploy", "deployment", "container", "terraform", "bicep", "security", "monitor", "Amazon", "AWS", "Google", "GCP"];
 const NOISY_KEYWORDS = ["project", "help", "build", "start"];
 
 describe(`${SKILL_NAME} - Trigger Tests`, () => {

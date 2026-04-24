@@ -1,6 +1,6 @@
 ---
 name: azure-local-development
-description: "Setup project configurations and local development environment so that the developer can start debugging from a single action. Guides installation of prerequisites, automates Azure emulator setup via docker-compose (Azurite, Postgres, Service Bus, etc.), provides IDE-specific debug/launch configs, and generates a local development API test collection for basic app verification. WHEN: \"local dev\", \"local development\", \"local dev setup\", \"local environment setup\", \"debug my project locally\", \"debug my project in VS Code\", \"F5 debugging\", \"launch.json\", \"tasks.json\", \"set up emulators\". DO NOT USE FOR: deploying to Azure (use azure-deploy), generating Terraform or Bicep (use azure-prepare), Amazon, AWS, Lambda, Google, GCP, container diagnostics (use azure-diagnostics), security audits (use azure-compliance), monitoring (use appinsights-instrumentation)."
+description: "Setup project configurations and local development environment so that the developer can start debugging from a single action. Guides installation of prerequisites, automates Azure emulator setup via docker-compose (Azurite, Postgres, Service Bus, etc.), provides IDE-specific debug/launch configs, and generates a local development API test collection for basic app verification. WHEN: \"local dev\", \"local development\", \"local dev setup\", \"local environment setup\", \"debug my project locally\", \"debug my project in VS Code\", \"F5 debugging\", \"launch.json\", \"tasks.json\", \"set up emulators\". DO NOT USE FOR: deploying to Azure (use azure-deploy), generating Terraform or Bicep (use azure-prepare), Amazon, AWS, Google, GCP, container diagnostics (use azure-diagnostics), security audits (use azure-compliance), monitoring (use appinsights-instrumentation)."
 license: MIT
 metadata:
   author: Microsoft
@@ -34,6 +34,7 @@ Activate this skill when the user wants to:
 2. ❌ **Destructive actions require `ask_user`** — [Global Rules](references/global-rules.md)
 3. **Preserve existing config** — Never silently overwrite project configuration files or `docker-compose.yml`. Merge or ask first.
 4. **Scope — local development only** — This skill configures the developer's machine and existing workspace project for local debugging. Cloud deployment is handled by **azure-prepare** → **azure-validate** → **azure-deploy**.
+5. **Warn on limited support** — When a feature is not yet fully implemented (e.g. project type, runtime, emulator, IDE), you MUST emit a `⚠️ LIMITED SUPPORT:` warning, see [limited-support.md](references/limited-support.md).
 
 ---
 
@@ -53,15 +54,13 @@ Activate this skill when the user wants to:
 
 ## Phase 0: Classify — MANDATORY FIRST ACTION
 
-Scan the full workspace for service roots. Always produce a list of `services[]`. Load the corresponding project-type reference(s) before continuing to Phase 1.
+Scan the full workspace for service roots. Always produces a list of `services[]` and a workspace-level `ide`. Load the corresponding project-type and IDE reference(s) before continuing to Phase 1.
 
 | Action | Reference |
 |--------|-----------|
 | **IMPORTANT**: Always check for `.azure/project-plan.md` in the workspace root. If found, read it to understand the project's architecture, services, runtimes, and Azure dependencies. Use this context to inform planning in subsequent phases. This file is **optional** — if it does not exist, proceed normally. | `.azure/project-plan.md` (if present) |
 | Scan all subdirectories; detect project type + runtime per service root | [classify.md](references/classify.md) |
 | If 2+ service roots found: assemble shared workspace context, deduplicate emulators, assign debug ports | [multi-service.md](references/multi-service.md) |
-
-> ⚠️ If no supported project type is detected, inform the user and ask whether to proceed with a best-effort generic plan or stop.
 
 ---
 
@@ -76,8 +75,9 @@ Create `.azure/local-development-plan.md` by completing these steps. Do NOT gene
 | 3 | **Detect Migrations** — Scan for database migration files or ORM config; if found, plan a docker-compose migration service | [migrations.md](references/migrations.md) |
 | 4 | **Determine Launch Configuration** — Build the debug/launch configuration per service using the detected IDE | [runtimes/{rt}.md](references/runtimes/), [project-types/{type}.md](references/project-types/), [ide/{ide}.md](references/ide/) |
 | 5 | **Plan API Test Collection** — List HTTP endpoints and trigger-based functions that need test scripts | [inventory.md](references/inventory.md), [api-test-collections.md](references/api-test-collections.md) |
-| 6 | **Write Plan** — Generate `.azure/local-development-plan.md` using the template. Prerequisites section must list installed vs. missing with install links. Embed the architecture diagram from step 6. Set **Created** and **Last Updated** to the current UTC datetime (ISO 8601). | [plan-template.md](references/plan-template.md) |
-| 7 | **Present Plan** — Show plan to user and ask for approval. If prerequisites are missing, highlight them and ask the user to install before proceeding. Once approved, update plan status to `Approved` and **Last Updated** timestamp. | `.azure/local-development-plan.md` |
+| 6 | **Collect Limited-Support Warnings** — For every detected project type, runtime, IDE, and emulator: normalize to canonical ID, check for a matching file in the reference folder, and emit a `⚠️ LIMITED SUPPORT:` warning in your assistant message if no match exists. Log warnings in the plan's `## Limited Support` section. Never silently substitute a supported alternative. | [limited-support.md](references/limited-support.md) |
+| 7 | **Write Plan** — Generate `.azure/local-development-plan.md` using the template. Prerequisites section must list installed vs. missing with install links. Set **Created** and **Last Updated** to the current UTC datetime (ISO 8601). | [plan-template.md](references/plan-template.md) |
+| 8 | **Present Plan** — Show plan to user and ask for approval. If prerequisites are missing, highlight them and ask the user to install before proceeding. Once approved, update plan status to `Approved` and **Last Updated** timestamp. | `.azure/local-development-plan.md` |
 
 ---
 

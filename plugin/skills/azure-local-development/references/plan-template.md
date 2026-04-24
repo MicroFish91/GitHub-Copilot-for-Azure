@@ -27,6 +27,7 @@ You **MUST** create this plan file BEFORE generating any configuration files. Pr
 | Step | Summary |
 |------|---------|
 | [Prerequisites](#prerequisites) | Tools that must be installed on the host before running locally. |
+| [Limited Support](#limited-support) | *(if applicable)* Features detected that are not yet fully supported. |
 | [Architecture Diagram](#architecture-diagram) | Mermaid diagram showing high level app-to-emulator connections. |
 | [Emulators](#emulators) | Azure service dependencies running as Docker containers via docker-compose. |
 | [Migrations](#migrations) | *(if applicable)* Database schema applied automatically on `docker compose up`. |
@@ -49,6 +50,22 @@ You **MUST** create this plan file BEFORE generating any configuration files. Pr
 | Docker | ✅ | {✅/❌} | {version} | docker.com/get-started |
 
 > ⚠️ **Action required:** Please install any tools marked ❌ before approving this plan. The execution phase will not install prerequisites for you.
+
+---
+
+## Limited Support
+
+<!-- MANDATORY when any limited-support features were detected during classification. -->
+<!-- If ANY project type, runtime, IDE, or emulator was flagged as limited support, this section MUST be included. -->
+<!-- If no limited-support features were found, omit this entire section. -->
+<!-- Use the exact canonical warning format defined in limited-support.md. -->
+<!-- Category may be any of: Project type, Runtime, IDE, or Emulator. -->
+
+| Category | Value | Impact |
+|----------|-------|--------|
+| {Category} | {value} | {impact} |
+
+> ⚠️ The features listed above are not yet fully supported by this skill. The skill will proceed with a best-effort approach. Review these limitations before approving the plan.
 
 ---
 

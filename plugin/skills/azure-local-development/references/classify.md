@@ -8,7 +8,7 @@ Determine the project type(s) and runtime(s) to select the correct scanning rule
 
 ## ⛔ MANDATORY: Run Classification Before Anything Else
 
-Run the detection tables below **in order** (first match wins per root). Classification produces an array of service contexts — even single-service workspaces produce a one-item array so the rest of the flow is uniform.
+Run the detection tables below **in order** (first match wins per root). Classification produces an array of service contexts — even single-service workspaces produce a one-item services list so the rest of the flow is uniform.
 
 ---
 
@@ -20,58 +20,79 @@ Before scanning for service roots, look for `.azure/project-plan.md` in the work
 
 ---
 
-## Step 1: Detect Service Roots
+## Step 1: Detect Project Types
 
 Scan every subdirectory for the following signals. Ignore: `node_modules/`, `.git/`, `dist/`, `build/`, `bin/`, `obj/`.
 
 ### Project Type Detection Table
 
-> **Implementation status:** Only Azure Functions projects are fully supported today (emulators + launch config + tasks). All others are stubbed.
 
 | # | Detection Signals | Project Type | Status | Reference |
 |---|-------------------|-------------|--------|-----------|
-| 1 | `host.json` exists **AND** Azure Functions SDK in dependencies | **Azure Functions** | ✅ Implemented | [project-types/functions.md](project-types/functions.md) |
-| 2 | `Dockerfile` exists **AND** no `host.json` in same directory | **Container App** | 🔲 Planned | Not yet implemented, Ask user or best-effort generic |
-| 3 | Web framework detected (Express/Fastify/ASP.NET/FastAPI/Flask/Spring) **AND** no `host.json` **AND** no `Dockerfile` | **App Service** | 🔲 Planned | Not yet implemented |
-| 4 | `.AppHost.csproj` or `Aspire.Hosting` package in `*.csproj` | **.NET Aspire** | 🔲 Planned | Not yet implemented |
-| 5 | SPA framework detected (React/Vue/Angular/Svelte via `package.json`) **OR** `vite.config.*` / `next.config.*` / `angular.json` present **AND** no `host.json` | **Frontend SPA** | ✅ Implemented | No emulators needed; contributes a launch config + compound entry |
-| ∞ | No match | **Unknown** | — | Ask user or best-effort generic |
+| 1 | `host.json` exists and Azure Functions SDK in dependencies | **Azure Functions** | ✅ Implemented | [project-types/functions.md](project-types/functions.md) |
+| 2 | `Dockerfile` exists | **Container App** | 🔲 Planned | [limited-support.md](limited-support.md) |
+| 3 | Web framework detected (Express/Fastify/ASP.NET/FastAPI/Flask/Spring) **AND** no `host.json` **AND** no `Dockerfile` | **App Service** | 🔲 Planned | [limited-support.md](limited-support.md) |
+| 4 | `.AppHost.csproj` or `Aspire.Hosting` package in `*.csproj` | **.NET Aspire** | 🔲 Planned | [limited-support.md](limited-support.md) |
+| 5 | SPA framework detected (React/Vue/Angular/Svelte via `package.json`) **OR** `vite.config.*` / `next.config.*` / `angular.json` present **AND** no `host.json` | **Frontend SPA** | ✅ Implemented | [project-types/frontend-spa.md](project-types/frontend-spa.md) |
+| ∞ | No match | **Unknown** | — | [limited-support.md](limited-support.md) |
 
-> **Frontend SPA projects** do not require emulators or Azure bindings, but they **are** service roots. They contribute a browser debug configuration and a dev-server task. When a frontend is detected alongside a backend, the workspace is multi-service and **must** produce a compound debug configuration. See the active IDE adapter in [ide/](ide/) for the IDE-specific format.
+> **Frontend SPA projects** may not require emulators or Azure bindings, but they **are** service roots. They contribute a browser debug configuration and a dev-server task. When a frontend is detected alongside a backend, the workspace is multi-service and **must** produce a compound debug configuration. See the active IDE adapter in [ide/](ide/) for the IDE-specific format.
 
-> **🔲 Planned project types:** These stubs are in place but not yet activated. When one is detected, inform the user that only emulator setup can be generated at this time and check [project-types/{type}.md](project-types/) for current status.
-
-### Functions SDK Detection
-
-Check for Azure Functions SDK after confirming `host.json` exists:
-
-| Language | SDK Signal | Detection Command |
-|----------|-----------|-------------------|
-| Node.js / TypeScript | `@azure/functions` in `package.json` | `grep '"@azure/functions"' package.json` |
-| .NET / C# | `Microsoft.NET.Sdk.Functions` in `*.csproj` | `grep 'Microsoft.NET.Sdk.Functions' *.csproj` |
-| Python | `azure-functions` in `requirements.txt` | `grep 'azure-functions' requirements.txt` |
-| Java | `azure-functions-java-library` in `pom.xml` | `grep 'azure-functions-java-library' pom.xml` |
 
 ---
 
-## Step 2: Detect Runtime per Service Root
+## Step 2: Detect Runtimes
 
-After identifying the project type for a root, determine the language and runtime version:
+After identifying the project type for a root, determine the language and runtime version for each service root.
 
-| File Present | Runtime | Version Source | Debug Config Support |
-|-------------|---------|---------------|----------------------|
-| `package.json` (+ `tsconfig.json`) | **node-ts** | `engines.node` / `.nvmrc` / `.node-version` | ✅ Implemented |
-| `package.json` (no TypeScript) | **node-js** | Same | ✅ Implemented |
-| `*.csproj` | **dotnet** | `<TargetFramework>` element | ⛔ Not yet implemented |
-| `requirements.txt` / `pyproject.toml` | **python** | `.python-version` / `requires-python` | ⛔ Not yet implemented |
-| `pom.xml` / `build.gradle` | **java** | `<java.version>` / `sourceCompatibility` | ⛔ Not yet implemented |
-| `go.mod` | **go** | `go` directive | ⛔ Not yet implemented |
+### Runtime Detection Table
 
-> **⛔ Unimplemented runtimes:** Proceed with emulator setup (language-agnostic). Skip IDE debug/launch configuration generation and inform the user to configure those manually unless requested for best effort attempt.
+| # | Detection Signals | Runtime | Version Source | Status | Reference |
+|---|-------------------|---------|---------------|--------|-----------|
+| 1 | `package.json` (+ `tsconfig.json`) | **node-ts** | `engines.node` / `.nvmrc` / `.node-version` | ✅ Implemented | [runtimes/node.md](runtimes/node.md) |
+| 2 | `package.json` (no TypeScript) | **node-js** | Same | ✅ Implemented | [runtimes/node.md](runtimes/node.md) |
+| 3 | `*.csproj` | **dotnet** | `<TargetFramework>` element | 🔲 Planned | [limited-support.md](limited-support.md) |
+| 4 | `requirements.txt` / `pyproject.toml` | **python** | `.python-version` / `requires-python` | 🔲 Planned | [limited-support.md](limited-support.md) |
+| 5 | `pom.xml` / `build.gradle` | **java** | `<java.version>` / `sourceCompatibility` | 🔲 Planned | [limited-support.md](limited-support.md) |
+| 6 | `go.mod` | **go** | `go` directive | 🔲 Planned | [limited-support.md](limited-support.md) |
+| ∞ | No match | **Unknown** | — | — | [limited-support.md](limited-support.md) |
 
 ---
 
-## Step 3: Determine Single-Service vs Multi-Service
+## Step 3: Detect IDE (Workspace-Level)
+
+Determine the target IDE for the workspace. The IDE applies to the entire workspace, not per-service. Use the following priority:
+
+1. **Explicit user request** — The user names an IDE in their prompt (highest priority)
+2. **Existing workspace artifacts** — Check for IDE-specific files in the workspace root
+3. **Ask the user** — If no signal is found from the prompt or workspace, use `ask_user` to ask which IDE they want to target
+
+### ⛔ MUST: IDE Name Normalization
+
+Normalize the user's IDE reference to a **canonical ID** using this table. These are **different products** — do NOT treat one as shorthand for another.
+
+| User says | Canonical ID | Maps to |
+|-----------|-------------|---------|
+| "VS Code", "VSCode", "Visual Studio Code", "Code" | `vscode` | **VS Code** |
+| "Visual Studio", "VS" (without "Code") | `visual-studio` | **Visual Studio** |
+| "JetBrains", "IntelliJ", "Rider", "WebStorm", "PyCharm" | `jetbrains` | **JetBrains** |
+
+> ⛔ **"Visual Studio" ≠ "VS Code".** These are different IDEs. If the user says "Visual Studio" or "VS", you MUST classify as `visual-studio`, NOT `vscode`. Misclassifying the IDE violates this rule.
+
+After normalizing, check whether `references/ide/{canonical-id}.md` exists. If it does NOT exist, the IDE has **limited support** — you MUST follow the [limited-support.md](limited-support.md) emission protocol before proceeding. Do NOT silently fall back to a supported IDE.
+
+### IDE Detection Table
+
+| # | IDE | Canonical ID | Status | Reference |
+|---|-----|-------------|--------|-----------|
+| 1 | **VS Code** or **VS Code Insiders** | `vscode` | ✅ Implemented | [ide/vscode.md](ide/vscode.md) |
+| 2 | **Visual Studio** | `visual-studio` | 🔲 Planned | [limited-support.md](limited-support.md) |
+| 3 | **JetBrains** | `jetbrains` | 🔲 Planned | [limited-support.md](limited-support.md) |
+| ∞ | No match | — | 🔲 Planned | [limited-support.md](limited-support.md) |
+
+---
+
+## Step 4: Determine Single-Service vs Multi-Service
 
 Count the number of service roots found:
 
@@ -84,19 +105,23 @@ Count the number of service roots found:
 
 ## Output Format
 
-Always produce an array (even for single-service workspaces):
+Always produce a workspace context with `ide` and a `services[]` array (even for single-service workspaces):
 
 **Single-service:**
 ```
+workspace:
+  ide: vscode
 services:
   - { root: ./, projectType: functions, runtime: node-ts }
 ```
 
 **Multi-service (monorepo):**
 ```
+workspace:
+  ide: vscode
 services:
   - { root: ./api, projectType: functions,   runtime: node-ts }
   - { root: ./web, projectType: app-service,  runtime: node-ts }
 ```
 
-Carry this array into the next phase. Do NOT read `project-types/` or `runtimes/` files here — classification only produces types and paths.
+Carry this context into the next phase. Do NOT read `project-types/`, `runtimes/`, or `ide/` files here — classification only produces types, paths, and the target IDE.

@@ -15,9 +15,12 @@ import {
   getIntegrationSkipReason,
   type AgentMetadata,
 } from "../utils/agent-runner";
-import { expectFiles, isSkillInvoked, shouldEarlyTerminateForSkillInvocation, softCheckSkill, withTestResult } from "../utils/evaluate";
+import { expectFiles, getAllAssistantMessages, isSkillInvoked, shouldEarlyTerminateForSkillInvocation, softCheckSkill, withTestResult } from "../utils/evaluate";
 import { cloneRepo } from "../utils/git-clone";
-import { expectLaunchConfigurations, expectLocalDevelopmentPlanHeaders } from "./utils";
+import {
+  expectLaunchConfigurations,
+  expectLocalDevelopmentPlanHeaders,
+} from "./utils";
 import * as path from "node:path";
 
 const SKILL_NAME = "azure-local-development";
@@ -26,6 +29,7 @@ const FOLLOW_UP_PROMPT = ["Continue with recommended options until complete."];
 const RUNS_PER_PROMPT = 3;
 const INVOCATION_RATE_THRESHOLD = 0.8;
 const BROWNFIELD_TEST_TIMEOUT_MS = 2700000;
+const BROWNFIELD_PROJECTS_REPO = "https://github.com/MicroFish91/azure-skill-brownfield-projects.git";
 
 // Check if integration tests should be skipped at module level
 const skipTests = shouldSkipIntegrationTests();
@@ -42,7 +46,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
   const agent = useAgentRunner();
 
   // =========================================================
-  // Skill Invocation Rate Tests
+  // Skill Invocation Rate
   // =========================================================
 
   describe("skill-invocation", () => {
@@ -112,80 +116,118 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
       });
     });
   });
-});
 
-// =========================================================
-// Warn Unsupported Features Tests
-// =========================================================
+  // =========================================================
+  // Brownfield Projects — Plan, content, and flow validation
+  // =========================================================
 
-// Todo: Should warn when not yet supported features are found (e.g. emulator, IDE, projectType, runtime)
+  describe("brownfield-scrapbook-node", () => {
+    const SCRAPBOOK_NODE_SPARSE_PATH = "scaffold-scrapbook-node";
+    let agentMetadata: AgentMetadata;
+    let projectPath: string | undefined;
+    let workspacePath: string | undefined;
 
-// =========================================================
-// Brownfield Tests — Plan, content, and flow validation
-// =========================================================
+    beforeAll(async () => {
+      agentMetadata = await agent.run({
+        setup: async (workspace: string) => {
+          workspacePath = workspace;
+          projectPath = path.join(workspacePath, SCRAPBOOK_NODE_SPARSE_PATH);
 
-const BROWNFIELD_PROJECTS_REPO = "https://github.com/MicroFish91/azure-skill-brownfield-projects.git";
+          await cloneRepo({
+            repoUrl: BROWNFIELD_PROJECTS_REPO,
+            targetDir: workspace,
+            depth: 1,
+            sparseCheckoutPath: SCRAPBOOK_NODE_SPARSE_PATH,
+          });
+        },
+        prompt:
+          `/${SKILL_NAME} ` +
+          `The app can be found under ${SCRAPBOOK_NODE_SPARSE_PATH}.`,
+        nonInteractive: true,
+        followUp: FOLLOW_UP_PROMPT,
+        preserveWorkspace: true,
+      });
+    }, BROWNFIELD_TEST_TIMEOUT_MS);
 
-describe("brownfield-scrapbook-node", () => {
-  const SCRAPBOOK_NODE_SPARSE_PATH = "scaffold-scrapbook-node";
-  let agentMetadata: AgentMetadata;
-  let projectPath: string | undefined;
-  let workspacePath: string | undefined;
+    test("writes plan with expected sections", () => withTestResult(() => {
+      expect(agentMetadata).toBeDefined();
+      expect(projectPath).toBeDefined();
+      expectLocalDevelopmentPlanHeaders(projectPath!, [
+        "## Table of Contents",
+        "## Prerequisites",
+        "## Architecture",
+        "## Emulators",
+        "## Migrations",
+        "## Convenience Scripts",
+        "## Launch Configuration",
+        "## API Test Collections",
+        "## Debug Configuration Checklist",
+      ]);
+    }));
 
-  beforeAll(async () => {
-    agentMetadata = await agent.run({
-      setup: async (workspace: string) => {
-        workspacePath = workspace;
-        projectPath = path.join(workspacePath, SCRAPBOOK_NODE_SPARSE_PATH);
+    test("writes all expected output files", () => withTestResult(() => {
+      expect(agentMetadata).toBeDefined();
+      expect(projectPath).toBeDefined();
+      expectFiles(projectPath!, [
+        /\.azure[/\\]local-development-plan\.md$/,
+        /\.vscode[/\\]launch\.json$/,
+        /\.vscode[/\\]tasks\.json$/,
+        /docker-compose\.ya?ml$/,
+        /api[-_]?test[-_]?collections[/\\]local[-_]?development[/\\].+[/\\]invoke\.sh$/,
+      ], []);
+    }));
 
-        await cloneRepo({
-          repoUrl: BROWNFIELD_PROJECTS_REPO,
-          targetDir: workspace,
-          depth: 1,
-          sparseCheckoutPath: SCRAPBOOK_NODE_SPARSE_PATH,
+    test("verify launch config with 3 passing items", () => withTestResult(() => {
+      expect(agentMetadata).toBeDefined();
+      expect(projectPath).toBeDefined();
+      expectLaunchConfigurations(projectPath!, 3);
+    }));
+  });
+
+  // =========================================================
+  // Warn Limited Support Features
+  // =========================================================
+
+  describe("warn-limited-support", () => {
+    const SCRAPBOOK_NODE_SPARSE_PATH = "scaffold-scrapbook-node";
+
+    describe("limited-support-ide-visual-studio", () => {
+      let agentMetadata: AgentMetadata;
+      let projectPath: string | undefined;
+
+      beforeAll(async () => {
+        agentMetadata = await agent.run({
+          setup: async (workspace: string) => {
+            projectPath = path.join(workspace, SCRAPBOOK_NODE_SPARSE_PATH);
+
+            await cloneRepo({
+              repoUrl: BROWNFIELD_PROJECTS_REPO,
+              targetDir: workspace,
+              depth: 1,
+              sparseCheckoutPath: SCRAPBOOK_NODE_SPARSE_PATH,
+            });
+          },
+          prompt:
+            `/${SKILL_NAME} ` +
+            `The app can be found under ${SCRAPBOOK_NODE_SPARSE_PATH}. ` +
+            "I want to set up this app for debugging with Visual Studio.",
+          nonInteractive: true,
+          followUp: FOLLOW_UP_PROMPT,
+          preserveWorkspace: true,
         });
-      },
-      prompt:
-        `/${SKILL_NAME} ` +
-        `The app can be found under ${SCRAPBOOK_NODE_SPARSE_PATH}.`,
-      nonInteractive: true,
-      followUp: FOLLOW_UP_PROMPT,
-      preserveWorkspace: true,
+      }, BROWNFIELD_TEST_TIMEOUT_MS);
+
+      test("agent message warns about limited IDE support", () => withTestResult(() => {
+        expect(agentMetadata).toBeDefined();
+        const messages = getAllAssistantMessages(agentMetadata);
+        expect(messages).toContain("LIMITED SUPPORT");
+      }));
+
+      test("persists limited support details in plan file", () => withTestResult(() => {
+        expect(agentMetadata).toBeDefined();
+        expect(projectPath).toBeDefined();
+        expectLocalDevelopmentPlanHeaders(projectPath!, ["## Limited Support"]);
+      }));
     });
-  }, BROWNFIELD_TEST_TIMEOUT_MS);
-
-  test("writes plan with expected sections", () => withTestResult(() => {
-    expect(agentMetadata).toBeDefined();
-    expect(projectPath).toBeDefined();
-    expectLocalDevelopmentPlanHeaders(projectPath!, [
-      "## Table of Contents",
-      "## Prerequisites",
-      "## Architecture",
-      "## Emulators",
-      "## Migrations",
-      "## Convenience Scripts",
-      "## Launch Configuration",
-      "## API Test Collections",
-      "## Debug Configuration Checklist",
-    ]);
-  }));
-
-  test("writes all expected output files", () => withTestResult(() => {
-    expect(agentMetadata).toBeDefined();
-    expect(projectPath).toBeDefined();
-    expectFiles(projectPath!, [
-      /\.azure[/\\]local-development-plan\.md$/,
-      /\.vscode[/\\]launch\.json$/,
-      /\.vscode[/\\]tasks\.json$/,
-      /docker-compose\.ya?ml$/,
-      /api[-_]?test[-_]?collections[/\\]local[-_]?development[/\\].+[/\\]invoke\.sh$/,
-    ], []);
-  }));
-
-  test("verify launch config with 3 passing items", () => withTestResult(() => {
-    expect(agentMetadata).toBeDefined();
-    expect(projectPath).toBeDefined();
-    expectLaunchConfigurations(projectPath!, 3);
-  }));
-});
+  });
 });
