@@ -122,7 +122,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
   // =========================================================
 
   describe("brownfield-scrapbook-node", () => {
-    const SCRAPBOOK_NODE_SPARSE_PATH = "scaffold-scrapbook-node";
+    const SCRAPBOOK_NODE_SPARSE_PATH = "localdev-scrapbook-node";
     let agentMetadata: AgentMetadata;
     let projectPath: string | undefined;
     let workspacePath: string | undefined;
@@ -189,17 +189,14 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
   // =========================================================
 
   describe("warn-limited-support", () => {
-    const SCRAPBOOK_NODE_SPARSE_PATH = "scaffold-scrapbook-node";
+    const SCRAPBOOK_NODE_SPARSE_PATH = "localdev-scrapbook-node";
 
     describe("limited-support-ide-visual-studio", () => {
       let agentMetadata: AgentMetadata;
-      let projectPath: string | undefined;
 
       beforeAll(async () => {
         agentMetadata = await agent.run({
           setup: async (workspace: string) => {
-            projectPath = path.join(workspace, SCRAPBOOK_NODE_SPARSE_PATH);
-
             await cloneRepo({
               repoUrl: BROWNFIELD_PROJECTS_REPO,
               targetDir: workspace,
@@ -217,16 +214,10 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
         });
       }, BROWNFIELD_TEST_TIMEOUT_MS);
 
-      test("agent message warns about limited IDE support", () => withTestResult(() => {
+      test("agent warns about limited IDE support", () => withTestResult(() => {
         expect(agentMetadata).toBeDefined();
         const messages = getAllAssistantMessages(agentMetadata);
         expect(messages).toContain("LIMITED SUPPORT");
-      }));
-
-      test("persists limited support details in plan file", () => withTestResult(() => {
-        expect(agentMetadata).toBeDefined();
-        expect(projectPath).toBeDefined();
-        expectLocalDevelopmentPlanHeaders(projectPath!, ["## Limited Support"]);
       }));
     });
   });

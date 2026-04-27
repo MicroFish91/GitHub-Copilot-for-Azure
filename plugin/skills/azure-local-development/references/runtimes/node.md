@@ -94,9 +94,11 @@ When migrations are detected, also add:
 
 ```json
 {
-  "db:migrate": "bash scripts/db-migrate.sh"
+  "db:migrate": "{migration tool CLI command}"
 }
 ```
+
+> The `db:migrate` script wraps the detected migration tool's CLI command (e.g., `npx prisma migrate deploy`, `npx knex migrate:latest`). See [migrations.md](../migrations.md) for how to determine the command.
 
 | Script | Location | Run Command |
 |--------|----------|-------------|

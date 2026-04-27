@@ -43,6 +43,12 @@ services:
 |----------|-------|
 | `{VAR_NAME}` | `{value}` |
 
+## Healthcheck (Database Emulators Only)
+
+<!-- If this emulator is a database, include a healthcheck block in the docker-compose service above AND document it here. The migration service (see migrations.md) depends on `condition: service_healthy` to wait for the database before running migrations. Without a healthcheck, auto-migration will not work. -->
+
+<!-- Delete this section if the emulator is not a database. -->
+
 ## Notes
 
 <!-- Platform caveats (arm64/x86), known issues, resource requirements. -->

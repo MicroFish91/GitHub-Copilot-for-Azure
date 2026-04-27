@@ -31,8 +31,6 @@ services:
     restart: unless-stopped
 ```
 
-> **Healthcheck:** Always include the `healthcheck` block. When migrations are detected, the `db-migrate` service uses `condition: service_healthy` to wait for readiness. See [migrations.md](../migrations.md) for migration service patterns.
-
 ## Connection String
 
 ```
@@ -48,8 +46,21 @@ postgresql://postgres:postgres@localhost:5432/localdev
 
 > Use whichever variable name the project's ORM or SDK expects. Both forms above are shown as reference.
 
+## Healthcheck
+
+The healthcheck is included in the docker-compose service block above. It uses `pg_isready` to verify PostgreSQL is accepting connections. The migration service (see [migrations.md](../migrations.md)) depends on `condition: service_healthy` to wait for readiness before running migrations.
+
+```yaml
+healthcheck:
+  test: ["CMD-SHELL", "pg_isready -U postgres"]
+  interval: 5s
+  timeout: 5s
+  retries: 5
+  start_period: 30s
+```
+
 ## Notes
 
 - Port 5432 is the standard PostgreSQL port.
 - Default credentials (`postgres`/`postgres`) are intentionally simple for local dev. Never use in production.
-- Data is persisted to `./.postgres/`. The healthcheck ensures dependent services (e.g. `db-migrate`) wait for full readiness before connecting.
+- Data is persisted to `./.postgres/`.

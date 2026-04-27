@@ -62,3 +62,4 @@ See the active IDE adapter in [ide/{ide}.md](../ide/) for how these build steps 
 | `emulators:start` | `{file}` | `{command}` |
 | `emulators:stop` | `{file}` | `{command}` |
 | `emulators:clean` | `{file}` | `{command}` |
+| `db:migrate` | `{file}` | `{command}` |

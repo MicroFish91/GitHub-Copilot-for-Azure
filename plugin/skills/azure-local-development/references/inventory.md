@@ -61,39 +61,7 @@ cat .env .env.local .env.development 2>/dev/null | grep -i "connection\|storage\
 
 ## Step 2: Detect Database Migrations
 
-When a database dependency is detected, scan for migration evidence using the **three-layer detection** approach defined in [migrations.md](migrations.md):
-
-1. **Layer 1 — Migration Files:** Look for migration directories and files (`migrations/*.sql`, `prisma/migrations/`, `alembic/versions/`, `src/main/resources/db/migration/`, etc.)
-2. **Layer 2 — Dependencies:** Check the project's dependency manifest for migration tool packages (e.g., `package.json`, `requirements.txt`, `pyproject.toml`, `pom.xml`, `*.csproj`)
-3. **Layer 3 — Existing Scripts:** Check script runners and build configs for migration-related commands
-
-```bash
-# Layer 1: Check for migration files
-ls migrations/*.sql 2>/dev/null && echo "FOUND: Raw SQL migrations"
-test -d prisma/migrations && echo "FOUND: Prisma migrations (Node.js)"
-test -d alembic/versions && echo "FOUND: Alembic migrations (Python)"
-test -d src/main/resources/db/migration && echo "FOUND: Flyway migrations (Java)"
-ls migrations/*.ts migrations/*.js migrations/*.py 2>/dev/null && echo "FOUND: Code-based migration files"
-
-# Layer 2: Check dependency manifests for migration tools
-# Node.js — package.json
-node -e "const p=require('./package.json'); const all={...p.dependencies,...p.devDependencies}; ['prisma','drizzle-kit','typeorm','knex'].forEach(d => { if(all[d]) console.log('DEP:', d, all[d]) })" 2>/dev/null
-# Python — requirements.txt / pyproject.toml
-grep -i "alembic\|django\|flask-migrate" requirements.txt pyproject.toml 2>/dev/null
-# Java — pom.xml / build.gradle
-grep -i "flyway\|liquibase" pom.xml build.gradle 2>/dev/null
-# .NET — *.csproj
-grep -i "EntityFrameworkCore\|FluentMigrator" *.csproj 2>/dev/null
-
-# Layer 3: Check for existing migration scripts/commands
-grep -ri "migrat\|schema\|db:push\|db:seed" package.json Makefile Taskfile.yml scripts/ 2>/dev/null
-```
-
-Cross-reference all three layers per [migrations.md § Synthesis](migrations.md):
-
-- If evidence is consistent → record the tool and command
-- If evidence conflicts (multiple tools detected) → **ask the user** which is active
-- If a database dependency exists but **no migration evidence is found** → **ask the user** how they manage schema changes (do not guess)
+When a database dependency is detected, run through the detection and synthesis process in [migrations.md](migrations.md) to identify the migration tool and clarify / record the results. You are required to set up the docker-compose services that automate database migrations.
 
 ---
 
@@ -110,9 +78,9 @@ Check which local development artifacts already exist in the workspace:
 | `.env` / `.env.local` | Found / Not found |
 | `api-test-collections/local-development/` | Found / Not found |
 | `migrations/` or ORM config | Found / Not found |
-| `scripts/db-migrate.sh` | Found / Not found |
+| Migration script (e.g., `db:migrate` in `package.json`) | Found / Not found |
 
-If existing config is found, note it in the plan — the generate phase must **merge**, not overwrite.
+If existing config is found, note it in the plan and ask the user — the generate phase should always default to **merge**, not overwrite.
 
 ## Step 4: Detect Prerequisites
 
@@ -127,7 +95,6 @@ Check for required tools on the developer's machine. Only check tools relevant t
 | Docker | `docker --version` | Running emulators |
 | Docker Compose | `docker compose version` | Orchestrating emulators |
 | .NET SDK | `dotnet --version` | .NET projects |
-| Python | `python3 --version` | Python projects |
 
 ---
 

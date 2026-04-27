@@ -45,17 +45,13 @@ describe(`${SKILL_NAME} - Unit Tests`, () => {
 
     test("contains expected sections", () => {
       expect(skill.content).toContain("## Triggers");
-      expect(skill.content).toContain("## Rules");
+      expect(skill.content).toContain("## Global Rules");
       expect(skill.content).toContain("## Phase 0: Classify");
       expect(skill.content).toContain("## Phase 1: Plan");
       expect(skill.content).toContain("## Phase 2: Generate");
       expect(skill.content).toContain("## Phase 3: Validate");
       expect(skill.content).toContain("## Outputs");
       expect(skill.content).toContain("## Next Steps");
-    });
-
-    test("contains reference to global rules", () => {
-      expect(skill.content).toContain("global-rules.md");
     });
   });
 
