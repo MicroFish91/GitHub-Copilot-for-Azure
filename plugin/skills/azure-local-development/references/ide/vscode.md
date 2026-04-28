@@ -242,16 +242,17 @@ For each **non-compound** launch configuration in `.vscode/launch.json`:
 1. Read the config's `preLaunchTask` value
 2. Trace the full `dependsOn` chain in `.vscode/tasks.json` to resolve the dependency order
 3. Run prerequisite tasks first (install, clean, emulators), then start the `preLaunchTask` itself as a background process
-4. Confirm the ready signal in stdout from the **top-level task**, for example:
+4. If a `docker-compose.yml` was generated, verify all services started correctly after `docker compose up -d`. Long-running services (e.g., database emulators, Azurite) should be running and healthy; one-shot services (e.g., `db-migrate`) should have exited with code 0. Use `docker compose ps` and `docker compose logs <service>` to check. If any service failed, diagnose the issue, fix the configuration, and re-run until all services are healthy or exited cleanly. Only mark the config ❌ after exhausting reasonable fix attempts.
+5. Confirm the ready signal in stdout from the **top-level task**, for example:
    - Azure Functions host → `"Host lock lease acquired"` or `"Functions host started"`
    - Vite / webpack → `"ready in"` or `"Local:"`
    - Node HTTP server → `"listening on"` or `"Server running"`
-5. After the ready signal, confirm with `curl` using the **application HTTP port** (not the debug port):
+6. After the ready signal, confirm with `curl` using the **application HTTP port** (not the debug port):
    - For `node`-type configs (Functions): `curl -s -o /dev/null -w "%{http_code}" http://localhost:7071/api/health` → expect `200` (port `7071` is the Functions host HTTP port; debug port `9229` is for the debugger only)
    - For `chrome`-type configs (browser dev servers): `curl -s -o /dev/null -w "%{http_code}" http://localhost:<url port from launch config>` → expect `200` or `301`
    - **Note:** For `chrome`-type configs you are validating that the dev server started and is reachable — you do NOT need to launch a browser. The `preLaunchTask` is a shell task (`npm run dev` / Vite) that runs in the terminal like any other.
-6. Kill background processes, then move to the next config
-7. For compound configs: skip running them; mark ✅ if all named member configs passed, ❌ if any failed
+7. Kill background processes, then move to the next config
+8. For compound configs: skip running them; mark ✅ if all named member configs passed, ❌ if any failed
 
 **You MUST then edit the `## Debug Configuration Checklist` section in `.azure/local-development-plan.md`:**
 
