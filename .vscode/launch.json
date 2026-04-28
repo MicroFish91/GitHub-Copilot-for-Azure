@@ -1,0 +1,77 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Test (Input)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/tests",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--experimental-vm-modules",
+        "${workspaceFolder}/tests/node_modules/.bin/jest",
+        "--runInBand",
+        "--no-cache",
+        "--testPathPatterns",
+        "${input:skillName}.*${input:testType}"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "env": {
+        "NODE_OPTIONS": "--experimental-vm-modules",
+        "DEBUG": "1",
+        "MODEL_OVERRIDE": "${input:modelName}"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "modelName",
+      "type": "promptString",
+      "description": "Enter the model to use (e.g. claude-sonnet-4.6, claude-opus-4.6)",
+      "default": "claude-sonnet-4.6"
+    },
+    {
+      "id": "testType",
+      "type": "pickString",
+      "description": "Select the type of tests to run",
+      "options": [
+        "unit",
+        "trigger",
+        "integration"
+      ]
+    },
+    {
+      "id": "skillName",
+      "type": "pickString",
+      "description": "Select a skill to test",
+      "options": [
+        "appinsights-instrumentation",
+        "azure-ai",
+        "azure-aigateway",
+        "azure-cloud-migrate",
+        "azure-compliance",
+        "azure-compute",
+        "azure-cost",
+        "azure-deploy",
+        "azure-diagnostics",
+        "azure-enterprise-infra-planner",
+        "azure-hosted-copilot-sdk",
+        "azure-kubernetes",
+        "azure-kusto",
+        "azure-local-development",
+        "azure-messaging",
+        "azure-prepare",
+        "azure-quotas",
+        "azure-rbac",
+        "azure-resource-lookup",
+        "azure-resource-visualizer",
+        "azure-storage",
+        "azure-upgrade",
+        "azure-validate",
+        "entra-app-registration",
+        "microsoft-foundry"
+      ]
+    }
+  ]
+}
