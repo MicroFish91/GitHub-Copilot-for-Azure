@@ -1,6 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 
+/** 
+ * Asserts that a local development plan was generated and includes all expected section headers. 
+ */
 export function expectLocalDevelopmentPlanHeaders(projectPath: string, expectedPlanHeaders: string[]): void {
   const missingPlanHeaders = [...expectedPlanHeaders];
 
@@ -18,6 +21,9 @@ export function expectLocalDevelopmentPlanHeaders(projectPath: string, expectedP
   expect(missingPlanHeaders).toEqual([]);
 }
 
+/** 
+ * Asserts that the agent verified all expected launch configurations pass (✅) with no failures (❌). 
+ */
 export function expectLaunchConfigurations(projectPath: string, expectedConfigCount: number): void {
   const localDevelopmentPlan = getLocalDevelopmentPlan(projectPath);
   expect(localDevelopmentPlan).toBeDefined();

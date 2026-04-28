@@ -77,7 +77,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
         let invocationCount = 0;
         for (let i = 0; i < RUNS_PER_PROMPT; i++) {
           const agentMetadata = await agent.run({
-            prompt: "I need to hook up a local Azure Storage emulator for this project",
+            prompt: "I want to debug my app locally",
             nonInteractive: true,
             followUp: FOLLOW_UP_PROMPT,
             shouldEarlyTerminate: (agentMetadata) => shouldEarlyTerminateForSkillInvocation(agentMetadata, SKILL_NAME)
@@ -142,6 +142,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
         },
         prompt:
           `/${SKILL_NAME} ` +
+          "Please setup the necessary configurations for a VS Code editor. " +
           `The app can be found under ${SCRAPBOOK_NODE_SPARSE_PATH}.`,
         nonInteractive: true,
         followUp: FOLLOW_UP_PROMPT,
@@ -191,7 +192,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
   describe("warn-limited-support", () => {
     const SCRAPBOOK_NODE_SPARSE_PATH = "localdev-scrapbook-node";
 
-    describe("limited-support-ide-visual-studio", () => {
+    describe("limited-support-visual-studio", () => {
       let agentMetadata: AgentMetadata;
 
       beforeAll(async () => {
@@ -206,11 +207,10 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
           },
           prompt:
             `/${SKILL_NAME} ` +
-            `The app can be found under ${SCRAPBOOK_NODE_SPARSE_PATH}. ` +
-            "I want to set up this app for debugging with Visual Studio.",
+            "Please setup the necessary configurations for a Visual Studio editor. " +
+            `The app can be found under ${SCRAPBOOK_NODE_SPARSE_PATH}. `,
           nonInteractive: true,
           followUp: FOLLOW_UP_PROMPT,
-          preserveWorkspace: true,
         });
       }, BROWNFIELD_TEST_TIMEOUT_MS);
 

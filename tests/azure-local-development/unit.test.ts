@@ -68,7 +68,7 @@ describe(`${SKILL_NAME} - Unit Tests`, () => {
       expect(planFirstContent).toContain(LOCAL_DEVELOPMENT_PLAN);
     });
 
-    test("emphasizes plan and confirmation before generating code", () => {
+    test("emphasizes planning and confirmation before generating code", () => {
       expect(planFirstContent).toContain("PLAN-FIRST");
       expect(planFirstContent).toContain("STOP");
       expect(planFirstContent).toContain("CONFIRM");
