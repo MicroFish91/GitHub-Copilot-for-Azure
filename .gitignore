@@ -28,6 +28,9 @@ _UpgradeReport_Files/
 .paket/paket.exe
 .sass-cache/
 .vs/
+# Root .vscode/ files are tracked, nested subdirectories are ignored
+*/.vscode/
+!.vscode/*
 .vshistory/
 .waza-cache/
 [Aa][Rr][Mm]/
