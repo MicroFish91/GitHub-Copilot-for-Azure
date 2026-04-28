@@ -13,14 +13,14 @@ For every detected project type, runtime, IDE, and emulator, follow this procedu
 3. **If the file exists** → the feature is fully supported. Proceed normally.
 4. **If the file does NOT exist** → the feature has limited support. You **MUST** emit a warning. Do NOT substitute a different, supported feature.
 
-| Category | Reference Folder | Example canonical IDs |
+| Category | Category Folder | Example canonical IDs |
 |----------|-----------------|----------------------|
 | Project type | `references/project-types/` | `functions`, `container-app`, `app-service` |
 | Runtime | `references/runtimes/` | `node`, `dotnet`, `python`, `java`, `go` |
 | IDE | `references/ide/` | `vscode`, `visual-studio`, `jetbrains` |
 | Emulator | `references/emulators/` | `azurite`, `cosmosdb`, `postgres` |
 
-> ⚠️ **Do NOT skip this check.** Every detected feature MUST be verified against the reference folder before proceeding. If you are unsure, list the files in the folder to confirm.
+> ⚠️ **Do NOT skip this check.** Every detected feature MUST be verified against the category folder before proceeding. If you are unsure, list the files in the folder to confirm.
 
 ---
 
