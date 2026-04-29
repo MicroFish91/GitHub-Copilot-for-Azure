@@ -122,7 +122,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
   // =========================================================
 
   describe("brownfield-scrapbook-node", () => {
-    const SCRAPBOOK_NODE_SPARSE_PATH = "localdev-scrapbook-node";
+    const SCRAPBOOK_NODE_SPARSE_PATH = "scrapbook/node/snapshots/azure-project-verify";
     let agentMetadata: AgentMetadata;
     let projectPath: string | undefined;
     let workspacePath: string | undefined;
@@ -190,7 +190,7 @@ describeIntegration(`${SKILL_NAME}_ - Integration Tests`, () => {
   // =========================================================
 
   describe("warn-limited-support", () => {
-    const SCRAPBOOK_NODE_SPARSE_PATH = "localdev-scrapbook-node";
+    const SCRAPBOOK_NODE_SPARSE_PATH = "scrapbook/node/snapshots/azure-project-verify";
 
     describe("limited-support-visual-studio", () => {
       let agentMetadata: AgentMetadata;
